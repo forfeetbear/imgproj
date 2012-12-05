@@ -23,10 +23,12 @@ using namespace std;
 }
 
 - (IBAction)pressDebugButton:(id)sender {
+    cholmod_common common;
+    cholmod_start(&common);
     NSLog(@"Starting:");
-    NSLog(@"Converting image to graph");
     ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image usingWeightFunction:EASY];
     if(creator) {
+        NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
 //        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:imRep andImageSize:__image.image.size];
@@ -34,15 +36,21 @@ using namespace std;
 //        VectorXd ycord = [gLayout getY];
 //        [__gView drawPointsWithX:xcord andY:ycord];
 //        _gWindow.isVisible = YES;
+        cholmod_free_sparse(&adj, &common);
     } else {
         NSLog(@"Conversion failed");
     }
+    
+    cholmod_finish(&common);
 }
 
 - (IBAction)pressOtherDebugButton:(id)sender {
+    cholmod_common common;
+    cholmod_start(&common);
     NSLog(@"Starting:");
     ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image usingWeightFunction:ACCORDINGTOPIXEL];    
-    if(creator) {        
+    if(creator) {
+        NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
 //        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:imRep andImageSize:__image.image.size];
@@ -51,10 +59,13 @@ using namespace std;
 //        [__gView drawPointsWithX:xcord andY:ycord];
 //        _gWindow.isVisible = YES;
 //        NSLog(@"Done");
+        //deallocate the adjacency matrix
+        cholmod_free_sparse(&adj, &common);
     } else {
         NSLog(@"wat");
     }
     
+    cholmod_finish(&common);
     //cout << imRep << endl;
 }
 
