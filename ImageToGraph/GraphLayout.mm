@@ -27,45 +27,39 @@
 
 #pragma mark Internal Functions
 
-int binarySearch(vector<int> A, int key, int imin, int imax)
-{
-    if (imax < imin) {
-        return -1;
-    } else {
-        // calculate midpoint to cut set in half
-        int imid = (imin + imax) / 2;
-        
-        // three-way comparison
-        if (A[imid] > key) {
-            return binarySearch(A, key, imin, imid-1);
-        } else if (A[imid] < key) {
-            return binarySearch(A, key, imid+1, imax);
-        } else {
-            return imid;
+-(void) setupFixedPoints {
+    int rows = adj.rows();
+    //Add fixed x points - left and right edges
+    for (int i = 0; i < rows; i+=imgWidth) {
+        xCoords(i) = 0;
+        xCoords(i+imgWidth-1) = imgWidth-1;
+        numUnknownX -= 2;
+    }
+    //Add fixed y points - bottom and top edges
+    for (int i = 0; i < imgWidth; i++) {
+        yCoords(i) = 0;
+        yCoords((imgHeight-1)*imgWidth+i) = imgHeight - 1;
+        numUnknownY -= 2;
+    }
+    //create the array of unknown indices
+    int index = 1;
+    indicesNeededX2.resize(xCoords.size());
+    indicesNeededY2.resize(xCoords.size());
+    
+    for (int i = 0; i < xCoords.size(); i++) {
+        if (xCoords(i) < 0) {
+            indicesNeededX.push_back(i);
+            indicesNeededX2[i] = index++;
+        }
+    }
+    index = 1;
+    for (int i = 0; i < yCoords.size(); i++) {
+        if (yCoords(i) < 0) {
+            indicesNeededY.push_back(i);
+            indicesNeededY2[i] = index++;
         }
     }
 }
-
-////binary search for given value
-//int binarySearch(vector<int> arr, int i, int lo, int hi) {
-//    int mid = (lo + hi) / 2;
-//    if (arr[mid] == i) {
-//        NSLog(@"2");
-//        return mid;
-//    } else if (hi - lo <= 0) {
-//        NSLog(@"1");
-//        return -1;
-//    } else if (arr[mid] == i) {
-//        NSLog(@"2");
-//        return mid;
-//    } else if (arr[mid] < i) {
-//        NSLog(@"3 i: %i armid: %i lo: %i hi: %i mid: %i", i, arr[mid], lo, hi, mid);
-//        return binarySearch(arr, i, mid, hi);
-//    } else {
-//        NSLog(@"4");
-//        return binarySearch(arr, i, lo, mid);
-//    }
-//}
 
 -(SparseMatrix<double>) getLap {
     int dim = adj.rows();
@@ -105,40 +99,6 @@ int binarySearch(vector<int> A, int key, int imin, int imax)
     Lx = Lx1;
     Ly = Ly1;
     return res - adj;
-}
-
--(void) setupFixedPoints {
-    int rows = adj.rows();
-    //Add fixed x points - left and right edges
-    for (int i = 0; i < rows; i+=imgWidth) {
-        xCoords(i) = 0;
-        xCoords(i+imgWidth-1) = imgWidth-1;
-        numUnknownX -= 2;
-    }
-    //Add fixed y points - bottom and top edges
-    for (int i = 0; i < imgWidth; i++) {
-        yCoords(i) = 0;
-        yCoords((imgHeight-1)*imgWidth+i) = imgHeight - 1;
-        numUnknownY -= 2;
-    }
-    //create the array of unknown indices
-    int index = 1;
-    indicesNeededX2.resize(xCoords.size());
-    indicesNeededY2.resize(xCoords.size());
-    
-    for (int i = 0; i < xCoords.size(); i++) {
-        if (xCoords(i) < 0) {
-            indicesNeededX.push_back(i);
-            indicesNeededX2[i] = index++;
-        }
-    }
-    index = 1;
-    for (int i = 0; i < yCoords.size(); i++) {
-        if (yCoords(i) < 0) {
-            indicesNeededY.push_back(i);            
-            indicesNeededY2[i] = index++;
-        }
-    }
 }
 
 -(void) printVector: (vector<int>) v {

@@ -13,6 +13,8 @@
 		4A16D29B1666FFF5004A10C4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4A16D2991666FFF5004A10C4 /* Credits.rtf */; };
 		4A16D29E1666FFF5004A10C4 /* ImageToGraphAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A16D29D1666FFF5004A10C4 /* ImageToGraphAppDelegate.mm */; };
 		4A16D2A11666FFF6004A10C4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A16D29F1666FFF6004A10C4 /* MainMenu.xib */; };
+		4AC849B6166EFD9500A250F7 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AC849B5166EFD9500A250F7 /* Accelerate.framework */; };
+		4AC849BB166EFDE000A250F7 /* SuiteSparse in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AC849BA166EFDE000A250F7 /* SuiteSparse */; };
 		4AD90F741667FF3B002AE9E4 /* ImageToGraph.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AD90F731667FF3B002AE9E4 /* ImageToGraph.mm */; };
 		4AD90F7716684874002AE9E4 /* GraphLayout.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AD90F7616684874002AE9E4 /* GraphLayout.mm */; };
 		4AD90F7A166849E3002AE9E4 /* NSGraphView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AD90F79166849E3002AE9E4 /* NSGraphView.mm */; };
@@ -32,6 +34,8 @@
 		4A16D29C1666FFF5004A10C4 /* ImageToGraphAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageToGraphAppDelegate.h; sourceTree = "<group>"; };
 		4A16D29D1666FFF5004A10C4 /* ImageToGraphAppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageToGraphAppDelegate.mm; sourceTree = "<group>"; };
 		4A16D2A01666FFF6004A10C4 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		4AC849B5166EFD9500A250F7 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		4AC849BA166EFDE000A250F7 /* SuiteSparse */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SuiteSparse; path = ../libraries/SuiteSparse; sourceTree = "<group>"; };
 		4AD90F721667FF3B002AE9E4 /* ImageToGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageToGraph.h; sourceTree = "<group>"; };
 		4AD90F731667FF3B002AE9E4 /* ImageToGraph.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageToGraph.mm; sourceTree = "<group>"; };
 		4AD90F7516684874002AE9E4 /* GraphLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphLayout.h; sourceTree = "<group>"; };
@@ -45,6 +49,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AC849BB166EFDE000A250F7 /* SuiteSparse in Frameworks */,
+				4AC849B6166EFD9500A250F7 /* Accelerate.framework in Frameworks */,
 				4A16D28B1666FFF5004A10C4 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -55,6 +61,8 @@
 		4A16D27B1666FFF5004A10C4 = {
 			isa = PBXGroup;
 			children = (
+				4AC849BA166EFDE000A250F7 /* SuiteSparse */,
+				4AC849B5166EFD9500A250F7 /* Accelerate.framework */,
 				4A16D2901666FFF5004A10C4 /* ImageToGraph */,
 				4A16D2891666FFF5004A10C4 /* Frameworks */,
 				4A16D2871666FFF5004A10C4 /* Products */,

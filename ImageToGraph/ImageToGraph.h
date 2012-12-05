@@ -8,19 +8,19 @@
 
 #import <Foundation/Foundation.h>
 #import <Eigen/Sparse>
+#import <CHOLMOD/Include/cholmod.h>
 
 using namespace Eigen;
 typedef enum {EASY, ACCORDINGTOPIXEL, RANDOM} weight_t;
 
 @interface ImageToGraph : NSObject {
-    //NSData *imData;
     NSBitmapImageRep *rawImg;
     NSImage *image;
     weight_t func;    
 }
 
 -(id) initWithImage: (NSImage *) im usingWeightFunction: (weight_t) f;
--(SparseMatrix<float>) getAdjWithWidth: (int) width andHeight: (int) height;
 -(SparseMatrix<float>) getAdj;
+-(cholmod_sparse *) getAdjChol;
 
 @end
