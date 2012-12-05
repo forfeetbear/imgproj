@@ -8,6 +8,8 @@
 
 #import "ImageToGraph.h"
 
+#define UPPER_SYMMETRICAL 1
+
 @implementation ImageToGraph
 
 #pragma mark Constructor(s)
@@ -40,90 +42,59 @@
     //quick workaround for if colours are black
 }
 
+#pragma mark CHOLMOD Utility Functions
+
+-(void) insertIntoTriplet: (cholmod_triplet *) t WithRow: (int) r col: (int) c andValue: (double) x {
+    size_t index = t->nnz++;
+    ((int *)t->i)[index] = r;
+    ((int *)t->j)[index] = c;
+    ((double *)t->x)[index] = x;
+}
+
 #pragma mark Interface Functions
 
--(cholmod_sparse *) getAdjChol {
+
+/* adjacencyMatrix is still in memory after this method remember to free once used */
+-(cholmod_sparse *) getAdj {
     //Some required values
     int height = image.size.height;
     int width = image.size.width;
     int x, y, nodes = height * width;
     //Cholmod stuff
-    cholmod_common 
-    
+    cholmod_common c;
+    cholmod_start(&c);
+    c.print = 5;
+    cholmod_triplet *tempTrip = cholmod_allocate_triplet(nodes, nodes, nodes*4, UPPER_SYMMETRICAL, CHOLMOD_REAL, &c);
+    cholmod_sparse *adjacencyMatrix;
     //Start creating
-    
-    SparseMatrix<double> imRep(nodes, nodes);
-    imRep.reserve(VectorXi::Constant(nodes, 4));
     int atNode = 0;
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
             if (func == EASY) {
                 if (y < height - 1) {
-                    imRep.insert(atNode, atNode+width) = 1;
-                    imRep.insert(atNode+width, atNode) = 1;
+                    [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:1];
                 }
                 if(x < width - 1) {
-                    imRep.insert(atNode, atNode+1) = 1;
-                    imRep.insert(atNode+1, atNode) = 1;
+                    [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:1];
                 }
                 atNode++;
             } else {
                 if (y < height - 1) {
                     double weight = [self getWeightBetween:NSMakePoint(x, y) andPixel:NSMakePoint(x, y+1) withFloor:1.0/255];
-                    imRep.insert(atNode, atNode+width) = weight;
-                    imRep.insert(atNode+width, atNode) = weight;
+                    [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:weight];
                 }
                 if(x < width - 1) {
                     double weight = [self getWeightBetween:NSMakePoint(x, y) andPixel:NSMakePoint(x+1, y) withFloor:1.0/255];
-                    imRep.insert(atNode, atNode+1) = weight;
-                    imRep.insert(atNode+1, atNode) = weight;
+                    [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:weight];
                 }
                 atNode++;
             }
         }
     }
-    return imRep;
+    adjacencyMatrix = cholmod_triplet_to_sparse(tempTrip, tempTrip->nzmax, &c);
+    cholmod_free_triplet(&tempTrip, &c);
+    cholmod_finish(&c);
+    return adjacencyMatrix;
 }
-
--(SparseMatrix<float>) getAdj {
-    int height = image.size.height;
-    int width = image.size.width;
-    int x, y, nodes = height * width;
-    
-    //Start creating
-    SparseMatrix<double> imRep(nodes, nodes);
-    imRep.reserve(VectorXi::Constant(nodes, 4));
-    int atNode = 0;
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            if (func == EASY) {
-                if (y < height - 1) {
-                    imRep.insert(atNode, atNode+width) = 1;
-                    imRep.insert(atNode+width, atNode) = 1;
-                }
-                if(x < width - 1) {
-                    imRep.insert(atNode, atNode+1) = 1;
-                    imRep.insert(atNode+1, atNode) = 1;
-                }
-                atNode++;
-            } else {
-                if (y < height - 1) {
-                    double weight = [self getWeightBetween:NSMakePoint(x, y) andPixel:NSMakePoint(x, y+1) withFloor:1.0/255];
-                    imRep.insert(atNode, atNode+width) = weight;
-                    imRep.insert(atNode+width, atNode) = weight;
-                }
-                if(x < width - 1) {
-                    double weight = [self getWeightBetween:NSMakePoint(x, y) andPixel:NSMakePoint(x+1, y) withFloor:1.0/255];
-                    imRep.insert(atNode, atNode+1) = weight;
-                    imRep.insert(atNode+1, atNode) = weight;
-                }
-                atNode++;
-            }
-        }
-    }
-    return imRep;
-}
-
-
 
 @end

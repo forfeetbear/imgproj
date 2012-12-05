@@ -20,7 +20,6 @@ typedef enum {EASY, ACCORDINGTOPIXEL, RANDOM} weight_t;
 }
 
 -(id) initWithImage: (NSImage *) im usingWeightFunction: (weight_t) f;
--(SparseMatrix<float>) getAdj;
--(cholmod_sparse *) getAdjChol;
+-(cholmod_sparse *) getAdj;
 
 @end

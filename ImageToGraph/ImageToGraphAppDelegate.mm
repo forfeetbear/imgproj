@@ -27,13 +27,13 @@ using namespace std;
     NSLog(@"Converting image to graph");
     ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image usingWeightFunction:EASY];
     if(creator) {
-        SparseMatrix<float> imRep = [creator getAdj];
+        cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
-        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:imRep andImageSize:__image.image.size];
-        VectorXd xcord = [gLayout getX];
-        VectorXd ycord = [gLayout getY];
-        [__gView drawPointsWithX:xcord andY:ycord];
-        _gWindow.isVisible = YES;
+//        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:imRep andImageSize:__image.image.size];
+//        VectorXd xcord = [gLayout getX];
+//        VectorXd ycord = [gLayout getY];
+//        [__gView drawPointsWithX:xcord andY:ycord];
+//        _gWindow.isVisible = YES;
     } else {
         NSLog(@"Conversion failed");
     }
@@ -42,15 +42,15 @@ using namespace std;
 - (IBAction)pressOtherDebugButton:(id)sender {
     NSLog(@"Starting:");
     ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image usingWeightFunction:ACCORDINGTOPIXEL];    
-    if(creator) {
-        SparseMatrix<float> imRep = [creator getAdj];
+    if(creator) {        
+        cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
-        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:imRep andImageSize:__image.image.size];
-        VectorXd xcord = [gLayout getX];
-        VectorXd ycord = [gLayout getY];
-        [__gView drawPointsWithX:xcord andY:ycord];
-        _gWindow.isVisible = YES;
-        NSLog(@"Done");
+//        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:imRep andImageSize:__image.image.size];
+//        VectorXd xcord = [gLayout getX];
+//        VectorXd ycord = [gLayout getY];
+//        [__gView drawPointsWithX:xcord andY:ycord];
+//        _gWindow.isVisible = YES;
+//        NSLog(@"Done");
     } else {
         NSLog(@"wat");
     }
