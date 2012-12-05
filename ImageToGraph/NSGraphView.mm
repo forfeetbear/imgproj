@@ -28,8 +28,9 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
+    int topY = self.frame.size.height;
     for (int i = 0; i < xCoords.size(); i++) {
-        [NSBezierPath fillRect:NSMakeRect(xCoords(i)*6+10, yCoords(i)*6+10, 2, 2)];
+        [NSBezierPath fillRect:NSMakeRect(xCoords(i)*6+10, topY - (yCoords(i)*6+10), 2, 2)];
     }
 }
 
