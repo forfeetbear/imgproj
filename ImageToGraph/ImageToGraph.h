@@ -21,5 +21,6 @@ typedef enum {EASY, ACCORDINGTOPIXEL, RANDOM} weight_t;
 
 -(id) initWithImage: (NSImage *) im usingWeightFunction: (weight_t) f;
 -(cholmod_sparse *) getAdj;
+-(double) getWeightBetween: (NSPoint) p1 andPixel: (NSPoint) p2 withFloor: (double) f;
 
 @end
