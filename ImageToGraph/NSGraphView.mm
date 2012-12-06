@@ -57,7 +57,10 @@
     cholmod_common common;
     cholmod_start(&common);
     if (xCoordsCHOL) {
-        
+        cholmod_free_dense(&xCoordsCHOL, &common);
+    }
+    if (yCoordsCHOL) {
+        cholmod_free_dense(&yCoordsCHOL, &common);
     }
     cholmod_finish(&common);
 }
