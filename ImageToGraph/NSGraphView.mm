@@ -10,28 +10,56 @@
 
 @implementation NSGraphView
 
+#pragma mark Initialisation
+
 - (id)initWithFrame:(NSRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        // Initialization code here.
+        xCoordsCHOL = NULL;
+        yCoordsCHOL = NULL;
     }
     
     return self;
 }
 
-- (void)drawPointsWithX: (VectorXd) xC andY: (VectorXd) yC {
-    xCoords = xC;
-    yCoords = yC;
-    self.needsDisplay = YES;
+#pragma mark Interface Functions
+
+- (void)drawPointsWithX: (cholmod_dense *) xC andY: (cholmod_dense *) yC{
+    cholmod_common common;
+    cholmod_start(&common);
+    if (xCoordsCHOL) {
+        cholmod_free_dense(&xCoordsCHOL, &common);
+    }
+    if (yCoordsCHOL) {
+        cholmod_free_dense(&yCoordsCHOL, &common);
+    }
+    xCoordsCHOL = cholmod_copy_dense(xC, &common);
+    yCoordsCHOL = cholmod_copy_dense(yC, &common);
 }
+
+#pragma mark Drawing Functions
 
 - (void)drawRect:(NSRect)dirtyRect
 {
     int topY = self.frame.size.height;
-    for (int i = 0; i < xCoords.size(); i++) {
-        [NSBezierPath fillRect:NSMakeRect(xCoords(i)*6+10, topY - (yCoords(i)*6+10), 2, 2)];
+    double offset = 10; //Get the graph away from the corner;
+    double scale = 6; //How much to stretch the graph
+    double size = 2; //How big each point is;
+    for (int i = 0; i < xCoordsCHOL->nzmax; i++) {
+        double xC = ((double *)xCoordsCHOL->x)[i] * scale + offset;
+        double yC = topY - (((double *)yCoordsCHOL->x)[i] * scale + offset);
+        [NSBezierPath fillRect:NSMakeRect(xC, yC, size, size)];
     }
+}
+
+-(void) dealloc {
+    cholmod_common common;
+    cholmod_start(&common);
+    if (xCoordsCHOL) {
+        
+    }
+    cholmod_finish(&common);
 }
 
 @end

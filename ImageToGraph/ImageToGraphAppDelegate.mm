@@ -66,24 +66,30 @@ using namespace std;
     }
     
     cholmod_finish(&common);
-    //cout << imRep << endl;
 }
 
 - (IBAction)pressedOtherOtherDebugButton:(id)sender {
-    VectorXd x(5), y(5);
-    x(0) = 5;
-    x(1) = 10;
-    x(2) = 15;
-    x(3) = 20;
-    x(4) = 25;
+    cholmod_common common;
+    cholmod_dense *x, *y;
+    cholmod_start(&common);
     
+    x = cholmod_allocate_dense(6, 1, 6, CHOLMOD_REAL, &common);
+    y = cholmod_allocate_dense(6, 1, 6, CHOLMOD_REAL, &common);
+    ((double *)x->x)[0] = 5;
+    ((double *)x->x)[1] = 10;
+    ((double *)x->x)[2] = 15;
+    ((double *)x->x)[3] = 20;
+    ((double *)x->x)[4] = 25;
+    ((double *)x->x)[5] = 0;
     
-    y(0) = 5;
-    y(1) = 10;
-    y(2) = 15;
-    y(3) = 20;
-    y(4) = 25;
+    ((double *)y->x)[0] = 5;
+    ((double *)y->x)[1] = 10;
+    ((double *)y->x)[2] = 15;
+    ((double *)y->x)[3] = 20;
+    ((double *)y->x)[4] = 25;    
+    ((double *)y->x)[5] = 0;
 
     [__gView drawPointsWithX:x andY:y];
+    _gWindow.isVisible = YES;
 }
 @end

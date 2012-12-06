@@ -6,16 +6,14 @@
 //  Copyright (c) 2012 Matthew Bennett. All rights reserved.
 //
 
-#import <Eigen/Dense>
 #import <Cocoa/Cocoa.h>
-
-using namespace Eigen;
+#import <CHOLMOD/Include/cholmod.h>
 
 @interface NSGraphView : NSView {
-    VectorXd xCoords;
-    VectorXd yCoords;
+    cholmod_dense *xCoordsCHOL;
+    cholmod_dense *yCoordsCHOL;
 }
 
-- (void)drawPointsWithX: (VectorXd) xC andY: (VectorXd) yC;
+- (void)drawPointsWithX: (cholmod_dense *) xC andY: (cholmod_dense *) yC;
 
 @end
