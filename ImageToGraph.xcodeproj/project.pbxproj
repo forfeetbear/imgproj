@@ -38,7 +38,6 @@
 		4A81EB8F166FF80D0089EAF6 /* libcholmod.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcholmod.a; path = ../libraries/SuiteSparse/CHOLMOD/Lib/libcholmod.a; sourceTree = "<group>"; };
 		4A81EB91166FF8750089EAF6 /* libcolamd.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcolamd.a; path = ../libraries/SuiteSparse/COLAMD/Lib/libcolamd.a; sourceTree = "<group>"; };
 		4AC849B5166EFD9500A250F7 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
-		4AC849BA166EFDE000A250F7 /* SuiteSparse */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SuiteSparse; path = ../libraries/SuiteSparse; sourceTree = "<group>"; };
 		4AD90F721667FF3B002AE9E4 /* ImageToGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageToGraph.h; sourceTree = "<group>"; };
 		4AD90F731667FF3B002AE9E4 /* ImageToGraph.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageToGraph.mm; sourceTree = "<group>"; };
 		4AD90F7516684874002AE9E4 /* GraphLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphLayout.h; sourceTree = "<group>"; };
@@ -67,7 +66,6 @@
 			children = (
 				4A81EB91166FF8750089EAF6 /* libcolamd.a */,
 				4A81EB8F166FF80D0089EAF6 /* libcholmod.a */,
-				4AC849BA166EFDE000A250F7 /* SuiteSparse */,
 				4AC849B5166EFD9500A250F7 /* Accelerate.framework */,
 				4A16D2901666FFF5004A10C4 /* ImageToGraph */,
 				4A16D2891666FFF5004A10C4 /* Frameworks */,
