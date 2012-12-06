@@ -33,6 +33,11 @@
         xCoordsCHOL = cholmod_allocate_dense(adjCHOL->nrow, 1, adjCHOL->nrow, CHOLMOD_REAL, &common);
         yCoordsCHOL = cholmod_allocate_dense(adjCHOL->nrow, 1, adjCHOL->nrow, CHOLMOD_REAL, &common);
         
+        //setting uninitialised variables to null
+        lapCHOL = NULL;
+        LxCHOL = NULL;
+        LyCHOL = NULL;
+        
         //set the coords to junk values (-1)
         for(int i = 0; i < numUnknownX; i++) {
             ((double *)xCoordsCHOL->x)[i] = COORDINATE_UNKNOWN;
@@ -53,6 +58,16 @@
     cholmod_free_dense(&xCoordsCHOL, &common);
     cholmod_free_dense(&yCoordsCHOL, &common);
     cholmod_free_sparse(&adjCHOL, &common);
+    //next few may not be initialised so we have to check
+    if (lapCHOL) {
+        cholmod_free_sparse(&lapCHOL, &common);
+    }
+    if (LxCHOL) {
+        cholmod_free_sparse(&LxCHOL, &common);
+    }
+    if (LyCHOL) {
+        cholmod_free_sparse(&LyCHOL, &common);
+    }
     cholmod_finish(&common);
 }
 
@@ -159,8 +174,6 @@
     return result;
 }
 
-#pragma mark UPTOHERE:D
-
 -(cholmod_dense *) getCx {
     cholmod_common common;
     cholmod_start(&common);
@@ -178,95 +191,114 @@
             ((double *)result->x)[i] += [tempITG getWeightBetween: NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX+1, pixY) withFloor:1.0/255] * ((double *)xCoordsCHOL->x)[indX[i]+1];
         }
     }
+    cholmod_finish(&common);
     return result;
 }
 
--(VectorXd) getCy {
-    VectorXd result = VectorXd::Zero(numUnknownY);
-    int nodes = imgWidth * imgHeight;
-    for (int i = 0; i < indicesNeededY.size(); i++) {
-        if (indicesNeededY[i] < 2 * imgWidth) {
-            result(i) += adj.coeffRef(indicesNeededY[i], indicesNeededY[i] - imgWidth) * yCoords(indicesNeededY[i]-imgWidth);
+-(cholmod_dense *) getCy {
+    cholmod_common common;
+    cholmod_start(&common);
+    
+    int nodes = imageDimensions.height * imageDimensions.width;
+    int *indY = (int *)[indicesNeededYCHOL mutableBytes];
+    cholmod_dense *result = cholmod_zeros(LyCHOL->nrow, 1, LyCHOL->xtype, &common);
+    for (int i = 0; i < numUnknownY; i++) {        
+        int pixX, pixY;
+        pixX = indY[i] % (int)imageDimensions.width;
+        pixY = indY[i] / (int)imageDimensions.width;
+        if (indY[i] < 2 * imageDimensions.width) {
+            ((double *)result->x)[i] += [tempITG getWeightBetween:NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX, pixY - 1) withFloor:1.0/255] * ((double *)yCoordsCHOL->x)[indY[i] - (int)imageDimensions.width];
         }
-        if (indicesNeededY[i] >= nodes - 2 * imgWidth) {
-            result(i) += adj.coeffRef(indicesNeededY[i], indicesNeededY[i] + imgWidth) * yCoords(indicesNeededY[i]+imgWidth);
+        if (indY[i] >= nodes - 2 * imageDimensions.width) {
+            ((double *)result->x)[i] += [tempITG getWeightBetween:NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX, pixY+1) withFloor:1.0/255];
         }
     }
+    cholmod_finish(&common);
     return result;
 }
 
--(VectorXd) getSolutionWith: (SparseMatrix<double>) Ltilde andRHS: (VectorXd)C {
-    SimplicialLDLT<SparseMatrix<double>> solver;
-    VectorXd sol;
-    solver.compute(Ltilde);
-    NSLog(@"rows: %i cols: %i", Ltilde.rows(), Ltilde.cols());
-    if (solver.info() != Success) {
-        NSLog(@"Something went wrong - decomposition");
-        return C;
-    }
-    sol = solver.solve(C);
-    if(solver.info() != Success) {
-        NSLog(@"Something went wrong - solve");
-        return C;
-    }
-    return sol;
+-(cholmod_dense *) getSolutionWith: (cholmod_sparse *) Ltilde andRHS: (cholmod_dense *)C {
+    cholmod_common common;
+    cholmod_start(&common);
+    
+    cholmod_factor *factor;
+    cholmod_dense *result;
+    factor = cholmod_analyze(Ltilde, &common);
+    cholmod_factorize(Ltilde, factor, &common);
+    result = cholmod_solve(CHOLMOD_A, factor, C, &common);
+    
+    cholmod_free_factor(&factor, &common);
+    cholmod_finish(&common);
+    return result;
 }
 
--(void) fillXWith: (VectorXd) sol {
-    for(int i = 0; i < sol.size(); i++) {
-        xCoords(indicesNeededX[i]) = sol(i);
+-(void) fillXWith: (cholmod_dense *) sol {
+    int *indX = (int *)[indicesNeededXCHOL mutableBytes];
+    for(int i = 0; i < sol->nrow; i++) {
+        ((double *)xCoordsCHOL->x)[indX[i]] = ((double *)sol->x)[i];
     }
 }
 
--(void) fillYWith: (VectorXd) sol {
-    for(int i = 0; i < sol.size(); i++) {
-        yCoords(indicesNeededY[i]) = sol(i);
+-(void) fillYWith: (cholmod_dense *) sol {
+    int *indY = (int *)[indicesNeededYCHOL mutableBytes];
+    for(int i = 0; i < sol->nrow; i++) {
+        ((double *)yCoordsCHOL->x)[indY[i]] = ((double *)sol->x)[i];
     }
 }
 
 #pragma mark Interface Functions
 
 -(void) runLayout {
+    cholmod_common common;
+    cholmod_start(&common);
+    
     NSLog(@"Fixing Points");
     [self setupDefaultFixedPoints];
-    NSLog(@"Getting Ls");
-    lap = [self getLap];
-//    NSLog(@"Creating Lx~");
-//    SparseMatrix<double> Lxtilde = [self getLxTilde];
-//    NSLog(@"Creating Ly~");
-//    SparseMatrix<double> Lytilde = [self getLyTilde];
+    NSLog(@"Getting L");
+    lapCHOL = [self getLap];
+    NSLog(@"Getting Lx~");
+    LxCHOL = [self getLxTilde];
+    NSLog(@"Getting Ly~");
+    LyCHOL = [self getLyTilde];
     NSLog(@"Creating Cx");
-    VectorXd Cx = [self getCx];
+    cholmod_dense *Cx = [self getCx];
     NSLog(@"Creating Cy");
-    VectorXd Cy = [self getCy];
+    cholmod_dense *Cy = [self getCy];
     NSLog(@"Solving for x:");
-    VectorXd solvedX = [self getSolutionWith:Lx andRHS:Cx];
+    cholmod_dense *solvedX = [self getSolutionWith:LxCHOL andRHS:Cx];
     NSLog(@"Solving for y:");
-    VectorXd solvedY = [self getSolutionWith:Ly andRHS:Cy];
+    cholmod_dense *solvedY = [self getSolutionWith:LyCHOL andRHS:Cy];
     NSLog(@"Filling x");
     [self fillXWith: solvedX];
     NSLog(@"Filling y");
     [self fillYWith: solvedY];
+    
+    NSLog(@"Freeing stuff");
+    cholmod_free_dense(&Cx, &common);
+    cholmod_free_dense(&Cy, &common);
+    cholmod_free_dense(&solvedX, &common);
+    cholmod_free_dense(&solvedY, &common);
+    cholmod_finish(&common);
     NSLog(@"Done");
     computed = YES;
 }
 
 #pragma mark Accessors
 
--(VectorXd) getX{
+-(cholmod_dense *) getX{
     if (!computed) {
         [self runLayout];
     }
     
-    return xCoords;
+    return xCoordsCHOL;
 }
 
--(VectorXd) getY{
+-(cholmod_dense *) getY{
     if (!computed) {
         [self runLayout];
     }
     
-    return yCoords;
+    return yCoordsCHOL;
 }
 
 @end

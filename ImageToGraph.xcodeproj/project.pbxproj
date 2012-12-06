@@ -19,6 +19,7 @@
 		4AD90F741667FF3B002AE9E4 /* ImageToGraph.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AD90F731667FF3B002AE9E4 /* ImageToGraph.mm */; };
 		4AD90F7716684874002AE9E4 /* GraphLayout.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AD90F7616684874002AE9E4 /* GraphLayout.mm */; };
 		4AD90F7A166849E3002AE9E4 /* NSGraphView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AD90F79166849E3002AE9E4 /* NSGraphView.mm */; };
+		4AEF5C0A16714D2700EC172C /* libamd.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AEF5C0916714D2700EC172C /* libamd.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 		4AD90F7616684874002AE9E4 /* GraphLayout.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GraphLayout.mm; sourceTree = "<group>"; };
 		4AD90F78166849E2002AE9E4 /* NSGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSGraphView.h; sourceTree = "<group>"; };
 		4AD90F79166849E3002AE9E4 /* NSGraphView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSGraphView.mm; sourceTree = "<group>"; };
+		4AEF5C0916714D2700EC172C /* libamd.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libamd.a; path = ../libraries/SuiteSparse/AMD/Lib/libamd.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AEF5C0A16714D2700EC172C /* libamd.a in Frameworks */,
 				4A81EB92166FF8750089EAF6 /* libcolamd.a in Frameworks */,
 				4A81EB90166FF80D0089EAF6 /* libcholmod.a in Frameworks */,
 				4AC849B6166EFD9500A250F7 /* Accelerate.framework in Frameworks */,
@@ -64,6 +67,7 @@
 		4A16D27B1666FFF5004A10C4 = {
 			isa = PBXGroup;
 			children = (
+				4AEF5C0916714D2700EC172C /* libamd.a */,
 				4A81EB91166FF8750089EAF6 /* libcolamd.a */,
 				4A81EB8F166FF80D0089EAF6 /* libcholmod.a */,
 				4AC849B5166EFD9500A250F7 /* Accelerate.framework */,
@@ -302,6 +306,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../libraries/SuiteSparse/CHOLMOD/Lib\"",
 					"\"$(SRCROOT)/../libraries/SuiteSparse/COLAMD/Lib\"",
+					"\"$(SRCROOT)/../libraries/SuiteSparse/AMD/Lib\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -325,6 +330,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../libraries/SuiteSparse/CHOLMOD/Lib\"",
 					"\"$(SRCROOT)/../libraries/SuiteSparse/COLAMD/Lib\"",
+					"\"$(SRCROOT)/../libraries/SuiteSparse/AMD/Lib\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
