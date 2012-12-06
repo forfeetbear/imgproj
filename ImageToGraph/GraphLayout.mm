@@ -210,7 +210,7 @@
             ((double *)result->x)[i] += [tempITG getWeightBetween:NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX, pixY - 1) withFloor:1.0/255] * ((double *)yCoordsCHOL->x)[indY[i] - (int)imageDimensions.width];
         }
         if (indY[i] >= nodes - 2 * imageDimensions.width) {
-            ((double *)result->x)[i] += [tempITG getWeightBetween:NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX, pixY+1) withFloor:1.0/255];
+            ((double *)result->x)[i] += [tempITG getWeightBetween:NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX, pixY + 1) withFloor:1.0/255] * ((double *)yCoordsCHOL->x)[indY[i] + (int)imageDimensions.width];
         }
     }
     cholmod_finish(&common);
@@ -220,14 +220,18 @@
 -(cholmod_dense *) getSolutionWith: (cholmod_sparse *) Ltilde andRHS: (cholmod_dense *)C {
     cholmod_common common;
     cholmod_start(&common);
+    common.print = 5;
     
     cholmod_factor *factor;
     cholmod_dense *result;
-    factor = cholmod_analyze(Ltilde, &common);
-    cholmod_factorize(Ltilde, factor, &common);
+    cholmod_sparse *symmetricLtilde;
+    symmetricLtilde = cholmod_copy(Ltilde, UPPER_SYMMETRICAL, MODE_NUMERICAL, &common);
+    factor = cholmod_analyze(symmetricLtilde, &common);
+    cholmod_factorize(symmetricLtilde, factor, &common);
     result = cholmod_solve(CHOLMOD_A, factor, C, &common);
     
     cholmod_free_factor(&factor, &common);
+    cholmod_free_sparse(&symmetricLtilde, &common);
     cholmod_finish(&common);
     return result;
 }
@@ -251,10 +255,11 @@
 -(void) runLayout {
     cholmod_common common;
     cholmod_start(&common);
+    common.print = 5;
     
     NSLog(@"Fixing Points");
     [self setupDefaultFixedPoints];
-    NSLog(@"Getting L");
+    NSLog(@"Getting L");    
     lapCHOL = [self getLap];
     NSLog(@"Getting Lx~");
     LxCHOL = [self getLxTilde];

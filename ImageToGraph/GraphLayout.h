@@ -6,16 +6,9 @@
 //  Copyright (c) 2012 Matthew Bennett. All rights reserved.
 //
 
-#import <Eigen/Sparse>
-#import <Eigen/Dense>
-#import <Eigen/SparseCholesky>
-#import <iostream>
 #import <Foundation/Foundation.h>
 #import <CHOLMOD/Include/cholmod.h>
 #import "ImageToGraph.h"
-
-using namespace Eigen;
-using namespace std;
 
 @interface GraphLayout : NSObject {
     cholmod_sparse *adjCHOL;

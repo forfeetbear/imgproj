@@ -25,17 +25,20 @@ using namespace std;
 - (IBAction)pressDebugButton:(id)sender {
     cholmod_common common;
     cholmod_start(&common);
+    
     NSLog(@"Starting:");
     ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image usingWeightFunction:EASY];
     if(creator) {
         NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
-//        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:imRep andImageSize:__image.image.size];
-//        VectorXd xcord = [gLayout getX];
-//        VectorXd ycord = [gLayout getY];
-//        [__gView drawPointsWithX:xcord andY:ycord];
-//        _gWindow.isVisible = YES;
+        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:adj andImageSize:__image.image.size usingITG:creator];
+        cholmod_dense *xcord = [gLayout getX];
+        cholmod_dense *ycord = [gLayout getY];
+        NSLog(@"Done");
+        [__gView drawPointsWithX:xcord andY:ycord];
+        _gWindow.isVisible = YES;
+        
         cholmod_free_sparse(&adj, &common);
     } else {
         NSLog(@"Conversion failed");
@@ -53,13 +56,13 @@ using namespace std;
         NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
-//        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:imRep andImageSize:__image.image.size];
-//        VectorXd xcord = [gLayout getX];
-//        VectorXd ycord = [gLayout getY];
-//        [__gView drawPointsWithX:xcord andY:ycord];
-//        _gWindow.isVisible = YES;
-//        NSLog(@"Done");
-        //deallocate the adjacency matrix
+        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:adj andImageSize:__image.image.size usingITG:creator];
+        cholmod_dense *xcord = [gLayout getX];
+        cholmod_dense *ycord = [gLayout getY];        
+        NSLog(@"Done");
+        [__gView drawPointsWithX:xcord andY:ycord];
+        _gWindow.isVisible = YES;
+        
         cholmod_free_sparse(&adj, &common);
     } else {
         NSLog(@"wat");

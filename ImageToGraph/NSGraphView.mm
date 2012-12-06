@@ -36,6 +36,7 @@
     }
     xCoordsCHOL = cholmod_copy_dense(xC, &common);
     yCoordsCHOL = cholmod_copy_dense(yC, &common);
+    self.needsDisplay = YES;
 }
 
 #pragma mark Drawing Functions
@@ -44,8 +45,8 @@
 {
     int topY = self.frame.size.height;
     double offset = 10; //Get the graph away from the corner;
-    double scale = 6; //How much to stretch the graph
-    double size = 2; //How big each point is;
+    double scale = 2; //How much to stretch the graph
+    double size = 1; //How big each point is;
     for (int i = 0; i < xCoordsCHOL->nzmax; i++) {
         double xC = ((double *)xCoordsCHOL->x)[i] * scale + offset;
         double yC = topY - (((double *)yCoordsCHOL->x)[i] * scale + offset);
