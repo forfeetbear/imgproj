@@ -45,7 +45,7 @@
 {
     int topY = self.frame.size.height;
     double offset = 10; //Get the graph away from the corner;
-    double scale = 2; //How much to stretch the graph
+    double scale = 1; //How much to stretch the graph
     double size = 1; //How big each point is;
     for (int i = 0; i < xCoordsCHOL->nzmax; i++) {
         double xC = ((double *)xCoordsCHOL->x)[i] * scale + offset;

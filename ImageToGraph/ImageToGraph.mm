@@ -33,15 +33,15 @@
     if (func == EASY) {
         return 1.0;
     } else {
-    assert(f > 0);
-    NSColor *col1 = [rawImg colorAtX:p1.x y:p1.y];
-    NSColor *col2 = [rawImg colorAtX:p2.x y:p2.y];
-    CGFloat r1, g1, b1, a1, r2, g2, b2, a2;
-    
-    [col1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
-    [col2 getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
-    
-    return (r1 + r2 + g1 + g2 + b1 + b2) / 6 + f;
+        assert(f > 0);
+        NSColor *col1 = [rawImg colorAtX:p1.x y:p1.y];
+        NSColor *col2 = [rawImg colorAtX:p2.x y:p2.y];
+        CGFloat r1, g1, b1, a1, r2, g2, b2, a2;
+        
+        [col1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
+        [col2 getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
+        
+        return (r1 + r2 + g1 + g2 + b1 + b2) / 6 + f;
     }
     //quick workaround for if colours are black
 }
