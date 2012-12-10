@@ -12,8 +12,9 @@
 @interface NSGraphView : NSView {
     cholmod_dense *xCoordsCHOL;
     cholmod_dense *yCoordsCHOL;
+    NSBitmapImageRep *image;
 }
 
-- (void)drawPointsWithX: (cholmod_dense *) xC andY: (cholmod_dense *) yC;
+- (void)drawPointsWithX: (cholmod_dense *) xC andY: (cholmod_dense *) yC andPic: (NSImage *) im;
 
 @end

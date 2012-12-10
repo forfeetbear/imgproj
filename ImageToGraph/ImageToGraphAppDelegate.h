@@ -19,6 +19,5 @@
 
 - (IBAction)pressDebugButton:(id)sender;
 - (IBAction)pressOtherDebugButton:(id)sender;
-- (IBAction)pressedOtherOtherDebugButton:(id)sender;
 
 @end

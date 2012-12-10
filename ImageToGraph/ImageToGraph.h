@@ -16,10 +16,11 @@ typedef enum {EASY, ACCORDINGTOPIXEL, RANDOM} weight_t;
 @interface ImageToGraph : NSObject {
     NSBitmapImageRep *rawImg;
     NSImage *image;
-    weight_t func;    
+    CGImageSourceRef imageCG;
+    double (^getWeightBetween)(NSPoint, NSPoint, double, NSBitmapImageRep *);
 }
 
--(id) initWithImage: (NSImage *) im usingWeightFunction: (weight_t) f;
+-(id) initWithImage: (NSImage *) im usingWeightFunction: (double (^)(NSPoint, NSPoint, double, NSBitmapImageRep *))getWeight;
 -(cholmod_sparse *) getAdj;
 -(double) getWeightBetween: (NSPoint) p1 andPixel: (NSPoint) p2 withFloor: (double) f;
 

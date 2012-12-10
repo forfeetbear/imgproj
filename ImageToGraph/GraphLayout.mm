@@ -43,9 +43,6 @@
             ((double *)xCoordsCHOL->x)[i] = COORDINATE_UNKNOWN;
             ((double *)yCoordsCHOL->x)[i] = COORDINATE_UNKNOWN;
         }
-        
-        /* this part is temporary (probably) until I can figure out some better way of getting the weights into Cx and Cy */
-        tempITG = temp;
     }
     
     cholmod_finish(&common);
@@ -177,6 +174,9 @@
 -(cholmod_dense *) getCx {
     cholmod_common common;
     cholmod_start(&common);
+    cholmod_sparse *subL;
+    int rowNeeded = 0, colNeeded = 0;
+    common.print = 5;
     
     cholmod_dense *result = cholmod_zeros(LxCHOL->nrow, 1,LxCHOL->xtype, &common);
     int *indX = (int *)[indicesNeededXCHOL mutableBytes];
@@ -185,10 +185,24 @@
         pixX = indX[i] % (int)imageDimensions.width;
         pixY = indX[i] / (int)imageDimensions.width;
         if (pixX == 1) {
-            ((double *)result->x)[i] += [tempITG getWeightBetween: NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX-1, pixY) withFloor:1.0/255] * ((double *)xCoordsCHOL->x)[indX[i]-1];
+            rowNeeded = indX[i];
+            colNeeded = indX[i]-1;
+            
+            subL = cholmod_submatrix(adjCHOL, &rowNeeded, 1, &colNeeded, 1, TRUE, TRUE, &common);
+            
+            ((double *)result->x)[i] += ((double *)subL->x)[0] * ((double *)xCoordsCHOL->x)[indX[i]-1];
+            
+            cholmod_free_sparse(&subL, &common);
         }
-        if (pixX == (int)imageDimensions.width - 2) {
-            ((double *)result->x)[i] += [tempITG getWeightBetween: NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX+1, pixY) withFloor:1.0/255] * ((double *)xCoordsCHOL->x)[indX[i]+1];
+        if (pixX == (int)imageDimensions.width - 2) {            
+            rowNeeded = indX[i];
+            colNeeded = indX[i]+1;
+            
+            subL = cholmod_submatrix(adjCHOL, &rowNeeded, 1, &colNeeded, 1, TRUE, TRUE, &common);
+            
+            ((double *)result->x)[i] += ((double *)subL->x)[0] * ((double *)xCoordsCHOL->x)[indX[i]+1];
+            
+            cholmod_free_sparse(&subL, &common);
         }
     }
     cholmod_finish(&common);
@@ -198,6 +212,9 @@
 -(cholmod_dense *) getCy {
     cholmod_common common;
     cholmod_start(&common);
+    cholmod_sparse *subL;
+    int rowNeeded = 0, colNeeded = 0;
+    common.print = 5;
     
     int nodes = imageDimensions.height * imageDimensions.width;
     int *indY = (int *)[indicesNeededYCHOL mutableBytes];
@@ -206,11 +223,25 @@
         int pixX, pixY;
         pixX = indY[i] % (int)imageDimensions.width;
         pixY = indY[i] / (int)imageDimensions.width;
-        if (indY[i] < 2 * imageDimensions.width) {
-            ((double *)result->x)[i] += [tempITG getWeightBetween:NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX, pixY - 1) withFloor:1.0/255] * ((double *)yCoordsCHOL->x)[indY[i] - (int)imageDimensions.width];
+        if (indY[i] < 2 * imageDimensions.width) {            
+            rowNeeded = indY[i];
+            colNeeded = indY[i]-imageDimensions.width;
+            
+            subL = cholmod_submatrix(adjCHOL, &rowNeeded, 1, &colNeeded, 1, TRUE, TRUE, &common);
+            
+            ((double *)result->x)[i] += ((double *)subL->x)[0] * ((double *)yCoordsCHOL->x)[indY[i] - (int)imageDimensions.width];
+            
+            cholmod_free_sparse(&subL, &common);
         }
-        if (indY[i] >= nodes - 2 * imageDimensions.width) {
-            ((double *)result->x)[i] += [tempITG getWeightBetween:NSMakePoint(pixX, pixY) andPixel:NSMakePoint(pixX, pixY + 1) withFloor:1.0/255] * ((double *)yCoordsCHOL->x)[indY[i] + (int)imageDimensions.width];
+        if (indY[i] >= nodes - 2 * imageDimensions.width) {            
+            rowNeeded = indY[i];
+            colNeeded = indY[i]+imageDimensions.width;
+            
+            subL = cholmod_submatrix(adjCHOL, &rowNeeded, 1, &colNeeded, 1, TRUE, TRUE, &common);
+            
+            ((double *)result->x)[i] += ((double *)subL->x)[0] * ((double *)yCoordsCHOL->x)[indY[i] + (int)imageDimensions.width];
+            
+            cholmod_free_sparse(&subL, &common);
         }
     }
     cholmod_finish(&common);

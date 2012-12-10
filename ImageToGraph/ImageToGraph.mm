@@ -14,12 +14,12 @@
 
 #pragma mark Constructor(s)
 
--(id) initWithImage:(NSImage *)im usingWeightFunction:(weight_t)f {
+-(id) initWithImage:(NSImage *)im usingWeightFunction:(double (^)(NSPoint, NSPoint, double, NSBitmapImageRep *))getWeight {
     //consider having a block for the weight function here
-    if ((self = [super init]) && im.size.width > 0 && im.size.height > 0) {
+    if ((self = [super init]) && im.size.width > 0 && im.size.height > 0) {        
         image = im;
-        func = f;        
-        rawImg = [NSBitmapImageRep imageRepWithData:[im TIFFRepresentation]];       
+        getWeightBetween = getWeight;
+        rawImg = [NSBitmapImageRep imageRepWithData:[im TIFFRepresentation]];
     } else {
         NSLog(@"Something has gone horribly wrong.");
         return NULL;
@@ -28,23 +28,6 @@
 }
 
 #pragma mark Internal Functions
-
--(double) getWeightBetween: (NSPoint) p1 andPixel: (NSPoint) p2 withFloor: (double) f {
-    if (func == EASY) {
-        return 1.0;
-    } else {
-        assert(f > 0);
-        NSColor *col1 = [rawImg colorAtX:p1.x y:p1.y];
-        NSColor *col2 = [rawImg colorAtX:p2.x y:p2.y];
-        CGFloat r1, g1, b1, a1, r2, g2, b2, a2;
-        
-        [col1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
-        [col2 getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
-        
-        return (r1 + r2 + g1 + g2 + b1 + b2) / 6 + f;
-    }
-    //quick workaround for if colours are black
-}
 
 #pragma mark CHOLMOD Utility Functions
 
@@ -74,25 +57,15 @@
     int atNode = 0;
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-            if (func == EASY) {
-                if (y < height - 1) {
-                    [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:1];
-                }
-                if(x < width - 1) {
-                    [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:1];
-                }
-                atNode++;
-            } else {
-                if (y < height - 1) {
-                    double weight = [self getWeightBetween:NSMakePoint(x, y) andPixel:NSMakePoint(x, y+1) withFloor:1.0/255];
-                    [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:weight];
-                }
-                if(x < width - 1) {
-                    double weight = [self getWeightBetween:NSMakePoint(x, y) andPixel:NSMakePoint(x+1, y) withFloor:1.0/255];
-                    [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:weight];
-                }
-                atNode++;
+            if (y < height - 1) {
+                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 0.1, rawImg);
+                [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:weight];
             }
+            if(x < width - 1) {                
+                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 0.1, rawImg);
+                [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:weight];
+            }
+            atNode++;
         }
     }
     adjacencyMatrix = cholmod_triplet_to_sparse(tempTrip, tempTrip->nzmax, &c);

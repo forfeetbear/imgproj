@@ -25,7 +25,7 @@
 
 #pragma mark Interface Functions
 
-- (void)drawPointsWithX: (cholmod_dense *) xC andY: (cholmod_dense *) yC{
+- (void)drawPointsWithX: (cholmod_dense *) xC andY: (cholmod_dense *) yC andPic: (NSImage *) im {
     cholmod_common common;
     cholmod_start(&common);
     if (xCoordsCHOL) {
@@ -36,6 +36,7 @@
     }
     xCoordsCHOL = cholmod_copy_dense(xC, &common);
     yCoordsCHOL = cholmod_copy_dense(yC, &common);
+    image = [NSBitmapImageRep imageRepWithData:[im TIFFRepresentation]];
     self.needsDisplay = YES;
 }
 
@@ -43,11 +44,15 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
+    int pixX = 0, pixY = 0;
     int topY = self.frame.size.height;
     double offset = 10; //Get the graph away from the corner;
     double scale = 1; //How much to stretch the graph
     double size = 1; //How big each point is;
-    for (int i = 0; i < xCoordsCHOL->nzmax; i++) {
+    for (int i = 0; i < xCoordsCHOL->nzmax; i++) {        
+        pixX = i % (int)image.size.width;
+        pixY = i / (int)image.size.width;
+        [[image colorAtX:pixX y:pixY] setFill];
         double xC = ((double *)xCoordsCHOL->x)[i] * scale + offset;
         double yC = topY - (((double *)yCoordsCHOL->x)[i] * scale + offset);
         [NSBezierPath fillRect:NSMakeRect(xC, yC, size, size)];

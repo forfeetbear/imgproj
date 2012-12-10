@@ -23,7 +23,6 @@
     int numUnknownY;
     NSMutableData *indicesNeededXCHOL;
     NSMutableData *indicesNeededYCHOL;
-    ImageToGraph *tempITG;
 }
 
 -(id) initWithGraph: (cholmod_sparse *)graphRep andImageSize: (NSSize) size usingITG: (ImageToGraph *) temp;
