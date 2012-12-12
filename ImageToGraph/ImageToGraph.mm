@@ -34,6 +34,9 @@
         
         imData = [NSData dataWithBytes:CGBitmapContextGetData(bitmapContext) length:bytesPerRow*im.size.height];
         
+        //Calculate average r, g and b values accross the whole picture
+        
+        
         CGColorSpaceRelease(colorSpace);
         CGContextRelease(bitmapContext);
     } else {
@@ -64,11 +67,11 @@
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
             if (y < height - 1) {
-                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 127, imgData);
+                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 35, imgData);
                 [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:weight];
             }
             if(x < width - 1) {                
-                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 127, imgData);
+                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 35, imgData);
                 [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:weight];
             }
             atNode++;

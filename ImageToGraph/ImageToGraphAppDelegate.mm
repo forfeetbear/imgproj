@@ -75,7 +75,7 @@
         g2 = ((unsigned char *)im)[offset2+1];
         b2 = ((unsigned char *)im)[offset2+2];
         
-        return 255 - (g1 + g2) / 2 + f;
+        return (g1 + g2) / 2 + f;
         //quick workaround for if colours are black
     };
 }
@@ -164,9 +164,9 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
         double maxY = c.y + h/2;
         double minY = c.y - h/2;
         if (average.x > minX && average.x < maxX && average.y > minY && average.y < maxY) {
-            return 0.5;
+            return 1;
         }
-        return 1.0;
+        return 0.1;
     };
 }
 
@@ -198,8 +198,8 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
         cv::Mat out = [layout interpolatedImage];
         
         //draw points
-//        [__gView drawPointsWithX:xcord andY:ycord andPic:__image.image];
-//        _gWindow.isVisible = YES;
+        [__gView drawPointsWithX:xcord andY:ycord andPic:__image.image];
+        _gWindow.isVisible = YES;
         
         cholmod_free_sparse(&adj, &common);
     } else {
