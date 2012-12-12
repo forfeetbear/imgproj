@@ -14,28 +14,33 @@
 
 #pragma mark Constructor(s)
 
--(id) initWithImage:(NSImage *)im usingWeightFunction:(double (^)(NSPoint, NSPoint, double, NSBitmapImageRep *))getWeight {
+-(id) initWithImage:(NSImage *)im usingWeightFunction: (weightFunction) getWeight {
     //consider having a block for the weight function here
     if ((self = [super init]) && im.size.width > 0 && im.size.height > 0) {        
         image = im;
         getWeightBetween = getWeight;
         rawImg = [NSBitmapImageRep imageRepWithData:[im TIFFRepresentation]];
+        
+        //New code for raw image buffer
+        int bytesPerRow = im.size.width * 4;
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        CGContextRef bitmapContext = CGBitmapContextCreate(NULL, im.size.width, im.size.height, 8, bytesPerRow, colorSpace, kCGImageAlphaPremultipliedLast);
+        NSGraphicsContext *drawTo = [NSGraphicsContext graphicsContextWithGraphicsPort:bitmapContext flipped:NO];
+        
+        [NSGraphicsContext saveGraphicsState];
+        [NSGraphicsContext setCurrentContext:drawTo];
+        [im drawAtPoint:NSMakePoint(0, 0) fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+        [NSGraphicsContext restoreGraphicsState];
+        
+        imData = [NSData dataWithBytes:CGBitmapContextGetData(bitmapContext) length:bytesPerRow*im.size.height];
+        
+        CGColorSpaceRelease(colorSpace);
+        CGContextRelease(bitmapContext);
     } else {
         NSLog(@"Something has gone horribly wrong.");
         return NULL;
     }
     return self;
-}
-
-#pragma mark Internal Functions
-
-#pragma mark CHOLMOD Utility Functions
-
--(void) insertIntoTriplet: (cholmod_triplet *) t WithRow: (int) r col: (int) c andValue: (double) x {
-    size_t index = t->nnz++;
-    ((int *)t->i)[index] = r;
-    ((int *)t->j)[index] = c;
-    ((double *)t->x)[index] = x;
 }
 
 #pragma mark Interface Functions
@@ -44,6 +49,7 @@
 /* adjacencyMatrix is still in memory after this method remember to free once used */
 -(cholmod_sparse *) getAdj {
     //Some required values
+    const void *imgData = [imData bytes];
     int height = image.size.height;
     int width = image.size.width;
     int x, y, nodes = height * width;
@@ -58,12 +64,12 @@
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
             if (y < height - 1) {
-                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 0.1, rawImg);
-                [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:weight];
+                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 127, imgData);
+                [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:weight];
             }
             if(x < width - 1) {                
-                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 0.1, rawImg);
-                [self insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:weight];
+                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 127, imgData);
+                [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:weight];
             }
             atNode++;
         }

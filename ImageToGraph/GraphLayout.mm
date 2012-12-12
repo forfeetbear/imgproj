@@ -17,7 +17,7 @@
 
 #pragma mark Constructor/Destructors
 
--(id) initWithGraph: (cholmod_sparse *) graphRep andImageSize: (NSSize) size usingITG:(ImageToGraph *)temp {
+-(id) initWithGraph: (cholmod_sparse *) graphRep andImageSize: (NSSize) size{
     cholmod_common common;
     cholmod_start(&common);
     

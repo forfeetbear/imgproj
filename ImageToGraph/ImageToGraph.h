@@ -7,21 +7,25 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Eigen/Sparse>
 #import <CHOLMOD/Include/cholmod.h>
+#import <opencv2/highgui/highgui.hpp>
+#import <opencv2/core/core.hpp>
+#import "CHOLMODUtil.h"
 
-using namespace Eigen;
 typedef enum {EASY, ACCORDINGTOPIXEL, RANDOM} weight_t;
+typedef double (^weightFunction)(NSPoint, NSPoint, double, const void *);
 
 @interface ImageToGraph : NSObject {
     NSBitmapImageRep *rawImg;
     NSImage *image;
     CGImageSourceRef imageCG;
-    double (^getWeightBetween)(NSPoint, NSPoint, double, NSBitmapImageRep *);
+    weightFunction getWeightBetween;
+    
+    //Types for the new image representation
+    NSData *imData;
 }
 
--(id) initWithImage: (NSImage *) im usingWeightFunction: (double (^)(NSPoint, NSPoint, double, NSBitmapImageRep *))getWeight;
+-(id) initWithImage: (NSImage *) im usingWeightFunction: (weightFunction)getWeight;
 -(cholmod_sparse *) getAdj;
--(double) getWeightBetween: (NSPoint) p1 andPixel: (NSPoint) p2 withFloor: (double) f;
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "NSGraphView.h"
+#import "NSImage+OpenCV.h"
 
 @implementation NSGraphView
 
@@ -44,15 +45,11 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
-    int pixX = 0, pixY = 0;
     int topY = self.frame.size.height;
     double offset = 10; //Get the graph away from the corner;
     double scale = 1; //How much to stretch the graph
     double size = 1; //How big each point is;
-    for (int i = 0; i < xCoordsCHOL->nzmax; i++) {        
-        pixX = i % (int)image.size.width;
-        pixY = i / (int)image.size.width;
-        [[image colorAtX:pixX y:pixY] setFill];
+    for (int i = 0; i < xCoordsCHOL->nzmax; i++) {
         double xC = ((double *)xCoordsCHOL->x)[i] * scale + offset;
         double yC = topY - (((double *)yCoordsCHOL->x)[i] * scale + offset);
         [NSBezierPath fillRect:NSMakeRect(xC, yC, size, size)];

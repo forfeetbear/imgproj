@@ -7,7 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <opencv2/highgui/highgui.hpp>
+#import <opencv2/core/core.hpp>
 #import "NSGraphView.h"
+#import "NSImage+OpenCV.h"
+#import "LayoutToImage.h"
+
+typedef double (^weightFunction)(NSPoint, NSPoint, double, const void *);
 
 @interface ImageToGraphAppDelegate : NSObject <NSApplicationDelegate>
 

@@ -25,7 +25,7 @@
     NSMutableData *indicesNeededYCHOL;
 }
 
--(id) initWithGraph: (cholmod_sparse *)graphRep andImageSize: (NSSize) size usingITG: (ImageToGraph *) temp;
+-(id) initWithGraph: (cholmod_sparse *)graphRep andImageSize: (NSSize) size;
 -(cholmod_dense *) getX;
 -(cholmod_dense *) getY;
 
