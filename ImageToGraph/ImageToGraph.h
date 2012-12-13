@@ -16,12 +16,8 @@ typedef enum {EASY, ACCORDINGTOPIXEL, RANDOM} weight_t;
 typedef double (^weightFunction)(NSPoint, NSPoint, double, const void *);
 
 @interface ImageToGraph : NSObject {
-    NSBitmapImageRep *rawImg;
     NSImage *image;
-    CGImageSourceRef imageCG;
     weightFunction getWeightBetween;
-    
-    //Types for the new image representation
     NSData *imData;
 }
 

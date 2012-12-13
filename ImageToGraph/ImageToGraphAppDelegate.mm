@@ -115,7 +115,7 @@
         g2 = ((unsigned char *)im)[offset2+1];
         b2 = ((unsigned char *)im)[offset2+2];
         
-        return (r1 + r2 + g1 + g2 + b1 + b2) / 6 + f;
+        return ((r1 + r2 + g1 + g2 + b1 + b2) / 6 + f);
         //quick workaround for if colours are black
     };
 }

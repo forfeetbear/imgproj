@@ -25,12 +25,10 @@
 -(cv::Mat) interpolatedImage {
     cv::Mat result(image.size(), image.type());
     
-    cv::remap(image, result, mapX, mapY, CV_INTER_CUBIC);
+    cv::remap(image, result, mapX, mapY, CV_INTER_LINEAR);
     
     cv::namedWindow("Tester");
     cv::imshow("Tester", result);
-    
-    cv::waitKey(-1);
     
     return result;
 }

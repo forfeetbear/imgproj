@@ -16,15 +16,22 @@
 
 -(id) initWithImage:(NSImage *)im usingWeightFunction: (weightFunction) getWeight {
     //consider having a block for the weight function here
-    if ((self = [super init]) && im.size.width > 0 && im.size.height > 0) {        
+    if ((self = [super init]) && im.size.width > 0 && im.size.height > 0) {
+        int index;
+        float r, g, b;
         image = im;
         getWeightBetween = getWeight;
-        rawImg = [NSBitmapImageRep imageRepWithData:[im TIFFRepresentation]];
         
         //New code for raw image buffer
         int bytesPerRow = im.size.width * 4;
         CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-        CGContextRef bitmapContext = CGBitmapContextCreate(NULL, im.size.width, im.size.height, 8, bytesPerRow, colorSpace, kCGImageAlphaPremultipliedLast);
+        CGContextRef bitmapContext = CGBitmapContextCreate(NULL,
+                                                           im.size.width,
+                                                           im.size.height,
+                                                           8,
+                                                           bytesPerRow,
+                                                           colorSpace,
+                                                           kCGImageAlphaPremultipliedLast);
         NSGraphicsContext *drawTo = [NSGraphicsContext graphicsContextWithGraphicsPort:bitmapContext flipped:NO];
         
         [NSGraphicsContext saveGraphicsState];
@@ -33,9 +40,21 @@
         [NSGraphicsContext restoreGraphicsState];
         
         imData = [NSData dataWithBytes:CGBitmapContextGetData(bitmapContext) length:bytesPerRow*im.size.height];
+        unsigned char *pixels = (unsigned char *)[imData bytes];
         
         //Calculate average r, g and b values accross the whole picture
+        for (int i = 0; i<im.size.height*im.size.width; i++) {
+            index = i*4;
+            r += pixels[index];
+            g += pixels[index+1];
+            b += pixels[index+2];
+        }
         
+        r /= im.size.height*im.size.width;
+        g /= im.size.height*im.size.width;
+        b /= im.size.height*im.size.width;
+        
+        NSLog(@"Average colour is (%f, %f, %f)", r, g, b);
         
         CGColorSpaceRelease(colorSpace);
         CGContextRelease(bitmapContext);

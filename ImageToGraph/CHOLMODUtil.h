@@ -13,6 +13,8 @@
 @interface CHOLMODUtil : NSObject
 
 +(void) insertIntoTriplet: (cholmod_triplet *) t WithRow: (int) r col: (int) c andValue: (double) x;
-+(cv::Mat) convertCHOLMODDense: (cholmod_dense *) d withWidth: (int) w andHeight: (int) h;
++(cv::Mat) convertXCHOLMODDense: (cholmod_dense *) d withWidth: (int) w andHeight: (int) h;
++(cv::Mat) convertYCHOLMODDense: (cholmod_dense *) d withWidth: (int) w andHeight: (int) h;
++(cv::Mat) convertCHOLMODDense:(cholmod_dense *)d withWidth: (int) w andHeight: (int) h;
 
 @end

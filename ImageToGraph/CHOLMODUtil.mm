@@ -28,4 +28,31 @@
     return result;
 }
 
+
++(cv::Mat) convertYCHOLMODDense:(cholmod_dense *)d withWidth: (int) w andHeight: (int) h {
+    cv::Mat result(h, w, CV_32FC1);
+    for (int i = 0; i < d->nzmax; i++) {
+        int pixX = i % w;
+        int pixY = i / w;
+        
+        double diff = ((double *)d->x)[i] - pixY;
+        
+        result.at<float>(pixY, pixX) = pixY - diff;
+    }
+    return result;
+}
+
++(cv::Mat) convertXCHOLMODDense:(cholmod_dense *)d withWidth: (int) w andHeight: (int) h {
+    cv::Mat result(h, w, CV_32FC1);
+    for (int i = 0; i < d->nzmax; i++) {
+        int pixX = i % w;
+        int pixY = i / w;
+        
+        double diff = ((double *)d->x)[i] - pixX;
+        
+        result.at<float>(pixY, pixX) = pixX - diff;
+    }
+    return result;
+}
+
 @end
