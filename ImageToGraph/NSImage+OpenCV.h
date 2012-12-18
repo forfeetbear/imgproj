@@ -12,6 +12,7 @@
 
 +(NSImage*)imageWithCVMat:(const cv::Mat&)cvMat;
 -(id)initWithCVMat:(const cv::Mat&)cvMat;
+-(NSData *)data;
 
 @property(nonatomic, readonly) cv::Mat CVMat;
 @property(nonatomic, readonly) cv::Mat CVGrayscaleMat;

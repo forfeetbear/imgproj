@@ -19,6 +19,9 @@ typedef double (^weightFunction)(NSPoint, NSPoint, double, const void *);
     NSImage *image;
     weightFunction getWeightBetween;
     NSData *imData;
+    int averageR;
+    int averageG;
+    int averageB;
 }
 
 -(id) initWithImage: (NSImage *) im usingWeightFunction: (weightFunction)getWeight;

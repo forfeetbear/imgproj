@@ -12,6 +12,28 @@ static void ProviderReleaseDataNOP(void *info, const void *data, size_t size)
 
 @implementation NSImage (NSImage_OpenCV)
 
+-(NSData *) data {
+    int bytesPerRow = self.size.width * 4;
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    CGContextRef bitmapContext = CGBitmapContextCreate(NULL,
+                                                       self.size.width,
+                                                       self.size.height,
+                                                       8,
+                                                       bytesPerRow,
+                                                       colorSpace,
+                                                       kCGImageAlphaPremultipliedLast);
+    NSGraphicsContext *drawTo = [NSGraphicsContext graphicsContextWithGraphicsPort:bitmapContext flipped:NO];
+    
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:drawTo];
+    [self drawAtPoint:NSMakePoint(0, 0) fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+    [NSGraphicsContext restoreGraphicsState];
+    
+    CGColorSpaceRelease(colorSpace);
+    CGContextRelease(bitmapContext);
+    return [NSData dataWithBytes:CGBitmapContextGetData(bitmapContext) length:bytesPerRow*self.size.height];
+}
+
 -(CGImageRef)CGImage
 {
     CGContextRef bitmapCtx = CGBitmapContextCreate(NULL/*data - pass NULL to let CG allocate the memory*/,

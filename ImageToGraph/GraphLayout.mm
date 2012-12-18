@@ -25,7 +25,7 @@
         //get basic values
         computed = NO;
         imageDimensions = NSMakeSize(size.width, size.height);
-        numUnknownX = imageDimensions.width * imageDimensions.height;
+        numUnknownX = (imageDimensions.width+1) * (imageDimensions.height+1);
         numUnknownY = numUnknownX;
         
         //copy in and allocate space for CHOLMOD structs
@@ -82,17 +82,17 @@
 -(void) setupDefaultFixedPoints {
     size_t rows = adjCHOL->nrow;
     //Add fixed x points - left and right edges
-    for (size_t i = 0; i < rows; i+=imageDimensions.width) {
-        int farSide = i + imageDimensions.width - 1;
+    for (size_t i = 0; i < rows; i+=imageDimensions.width+1) {
+        int farSide = i + imageDimensions.width;
         ((double *)xCoordsCHOL->x)[i] = 0;
-        ((double *)xCoordsCHOL->x)[farSide] = imageDimensions.width-1;
+        ((double *)xCoordsCHOL->x)[farSide] = imageDimensions.width+1;
         numUnknownX -= 2;
     }
     //Add fixed y points - bottom and top edges
-    for (int i = 0; i < imageDimensions.width; i++) {
-        int topRow = (imageDimensions.height - 1) * imageDimensions.width + i;
+    for (int i = 0; i < imageDimensions.width+1; i++) {
+        int topRow = (imageDimensions.height) * (imageDimensions.width+1) + i;
         ((double *)yCoordsCHOL->x)[i] = 0;
-        ((double *)yCoordsCHOL->x)[topRow] = imageDimensions.height - 1;
+        ((double *)yCoordsCHOL->x)[topRow] = imageDimensions.height;
         numUnknownY -= 2;
     }
     //create the array of unknown indices
@@ -120,6 +120,7 @@
 -(cholmod_sparse *) getLap {
     cholmod_common common;
     cholmod_start(&common);
+    common.print = 5;
     double multAlpha[] = {1, 0};
     double multBeta[] = {0, 0};
     double subAlpha[] = {1, 0};
@@ -139,7 +140,7 @@
     //convert the constructed diagonal to sparse and then subtract adj from it
     cholmod_sparse *diag = cholmod_triplet_to_sparse(tempTrip, tempTrip->nzmax, &common);
     cholmod_sparse *res = cholmod_add(diag, adjCHOL, subAlpha, subBeta, TRUE, TRUE, &common);
-    
+
     //free leftover stuff
     cholmod_free_dense(&ones, &common);
     cholmod_free_dense(&ones, &common);
@@ -182,8 +183,8 @@
     int *indX = (int *)[indicesNeededXCHOL mutableBytes];
     for (int i = 0; i < numUnknownX; i++) {
         int pixX, pixY;
-        pixX = indX[i] % (int)imageDimensions.width;
-        pixY = indX[i] / (int)imageDimensions.width;
+        pixX = indX[i] % (int)(imageDimensions.width+1);
+        pixY = indX[i] / (int)(imageDimensions.width+1);
         if (pixX == 1) {
             rowNeeded = indX[i];
             colNeeded = indX[i]-1;
@@ -194,7 +195,7 @@
             
             cholmod_free_sparse(&subL, &common);
         }
-        if (pixX == (int)imageDimensions.width - 2) {            
+        if (pixX == (int)imageDimensions.width - 1) {
             rowNeeded = indX[i];
             colNeeded = indX[i]+1;
             
@@ -216,30 +217,30 @@
     int rowNeeded = 0, colNeeded = 0;
     common.print = 5;
     
-    int nodes = imageDimensions.height * imageDimensions.width;
+    int nodes = (imageDimensions.height+1) * (imageDimensions.width+1);
     int *indY = (int *)[indicesNeededYCHOL mutableBytes];
     cholmod_dense *result = cholmod_zeros(LyCHOL->nrow, 1, LyCHOL->xtype, &common);
     for (int i = 0; i < numUnknownY; i++) {        
         int pixX, pixY;
-        pixX = indY[i] % (int)imageDimensions.width;
-        pixY = indY[i] / (int)imageDimensions.width;
-        if (indY[i] < 2 * imageDimensions.width) {            
+        pixX = indY[i] % (int)(imageDimensions.width+1);
+        pixY = indY[i] / (int)(imageDimensions.width+1);
+        if (indY[i] < 2 * (imageDimensions.width+1)) {
             rowNeeded = indY[i];
-            colNeeded = indY[i]-imageDimensions.width;
+            colNeeded = indY[i]-(imageDimensions.width+1);
             
             subL = cholmod_submatrix(adjCHOL, &rowNeeded, 1, &colNeeded, 1, TRUE, TRUE, &common);
             
-            ((double *)result->x)[i] += ((double *)subL->x)[0] * ((double *)yCoordsCHOL->x)[indY[i] - (int)imageDimensions.width];
+            ((double *)result->x)[i] += ((double *)subL->x)[0] * ((double *)yCoordsCHOL->x)[indY[i] - (int)(imageDimensions.width+1)];
             
             cholmod_free_sparse(&subL, &common);
         }
-        if (indY[i] >= nodes - 2 * imageDimensions.width) {            
+        if (indY[i] >= nodes - 2 * (imageDimensions.width+1)) {
             rowNeeded = indY[i];
-            colNeeded = indY[i]+imageDimensions.width;
+            colNeeded = indY[i]+(imageDimensions.width+1);
             
             subL = cholmod_submatrix(adjCHOL, &rowNeeded, 1, &colNeeded, 1, TRUE, TRUE, &common);
             
-            ((double *)result->x)[i] += ((double *)subL->x)[0] * ((double *)yCoordsCHOL->x)[indY[i] + (int)imageDimensions.width];
+            ((double *)result->x)[i] += ((double *)subL->x)[0] * ((double *)yCoordsCHOL->x)[indY[i] + (int)(imageDimensions.width+1)];
             
             cholmod_free_sparse(&subL, &common);
         }

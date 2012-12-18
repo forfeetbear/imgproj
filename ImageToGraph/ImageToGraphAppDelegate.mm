@@ -149,9 +149,9 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
         NSPoint average = NSMakePoint((p1.x+p2.x)/2, (p1.y+p2.y)/2);
         double dist = sqrt((average.x-c.x)*(average.x-c.x) + (average.y-c.y)*(average.y-c.y));
         if (dist < rad) {
-            return 1;
-        } else {
             return 0.1;
+        } else {
+            return 1;
         }
     };
 }
@@ -194,8 +194,10 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
         cholmod_dense *ycord = [gLayout getY];
         
         //interpolation
-        LayoutToImage *layout = [[LayoutToImage alloc] initWithImage:__image.image andLayoutWithXCoords:xcord andYCoords:ycord];
-        cv::Mat out = [layout interpolatedImage];
+//        LayoutToImage *layout = [[LayoutToImage alloc] initWithImage:__image.image andLayoutWithXCoords:xcord andYCoords:ycord];
+//        cv::Mat out = [layout interpolatedImage];
+        [_oglView drawImageFromData:[__image.image data] withSize:__image.image.size xCoords:xcord yCoords:ycord];
+        _glWindow.isVisible = YES;
         
         //draw points
         [__gView drawPointsWithX:xcord andY:ycord andPic:__image.image];
@@ -223,11 +225,13 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
         cholmod_dense *ycord = [gLayout getY];
         
         //interpolation
-        LayoutToImage *layout = [[LayoutToImage alloc] initWithImage:__image.image andLayoutWithXCoords:xcord andYCoords:ycord];
-        cv::Mat out = [layout interpolatedImage];
+//        LayoutToImage *layout = [[LayoutToImage alloc] initWithImage:__image.image andLayoutWithXCoords:xcord andYCoords:ycord];
+//        cv::Mat out = [layout interpolatedImage];
+        [_oglView drawImageFromData:[__image.image data] withSize:__image.image.size xCoords:xcord yCoords:ycord];
+        _glWindow.isVisible = YES;
         
-        [__gView drawPointsWithX:xcord andY:ycord  andPic:__image.image];
-        _gWindow.isVisible = YES;
+//        [__gView drawPointsWithX:xcord andY:ycord  andPic:__image.image];
+//        _gWindow.isVisible = YES;
         
         cholmod_free_sparse(&adj, &common);
     } else {

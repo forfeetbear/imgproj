@@ -7,6 +7,7 @@
 //
 
 #import "ImageToGraph.h"
+#import "NSImage+OpenCV.h"
 
 #define UPPER_SYMMETRICAL 1
 
@@ -18,46 +19,26 @@
     //consider having a block for the weight function here
     if ((self = [super init]) && im.size.width > 0 && im.size.height > 0) {
         int index;
-        float r, g, b;
         image = im;
         getWeightBetween = getWeight;
         
         //New code for raw image buffer
-        int bytesPerRow = im.size.width * 4;
-        CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-        CGContextRef bitmapContext = CGBitmapContextCreate(NULL,
-                                                           im.size.width,
-                                                           im.size.height,
-                                                           8,
-                                                           bytesPerRow,
-                                                           colorSpace,
-                                                           kCGImageAlphaPremultipliedLast);
-        NSGraphicsContext *drawTo = [NSGraphicsContext graphicsContextWithGraphicsPort:bitmapContext flipped:NO];
-        
-        [NSGraphicsContext saveGraphicsState];
-        [NSGraphicsContext setCurrentContext:drawTo];
-        [im drawAtPoint:NSMakePoint(0, 0) fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
-        [NSGraphicsContext restoreGraphicsState];
-        
-        imData = [NSData dataWithBytes:CGBitmapContextGetData(bitmapContext) length:bytesPerRow*im.size.height];
+        imData = [im data];
         unsigned char *pixels = (unsigned char *)[imData bytes];
         
         //Calculate average r, g and b values accross the whole picture
         for (int i = 0; i<im.size.height*im.size.width; i++) {
             index = i*4;
-            r += pixels[index];
-            g += pixels[index+1];
-            b += pixels[index+2];
+            averageR += pixels[index];
+            averageG += pixels[index+1];
+            averageB += pixels[index+2];
         }
         
-        r /= im.size.height*im.size.width;
-        g /= im.size.height*im.size.width;
-        b /= im.size.height*im.size.width;
+        averageR /= im.size.height*im.size.width;
+        averageG /= im.size.height*im.size.width;
+        averageB /= im.size.height*im.size.width;
         
-        NSLog(@"Average colour is (%f, %f, %f)", r, g, b);
-        
-        CGColorSpaceRelease(colorSpace);
-        CGContextRelease(bitmapContext);
+//        NSLog(@"Average colour is (%f, %f, %f)", r, g, b);
     } else {
         NSLog(@"Something has gone horribly wrong.");
         return NULL;
@@ -65,15 +46,83 @@
     return self;
 }
 
-#pragma mark Interface Functions
+#pragma mark Temporary Weight Function
 
+static double getColorDistance(int r1, int g1, int b1, int r2, int g2, int b2) {
+    int dr = r2 - r1;
+    int dg = g2 - g1;
+    int db = b2 - b1;
+    return sqrt(dr*dr + dg*dg + db*db);
+}
+
+-(double) getWeightForPixel: (NSPoint) pix withSize: (NSSize) imgSize andFloor: (double) floor andImage: (const void *) img {
+//------------SIMPLE (working)------------------//
+//    return 1;
+//----------------------------------------------//
+    
+//------------COLOURBYDIFFERENCE----------------//
+//    int index = 4*(pix.x + imgSize.width * pix.y);
+//    int r, g, b;
+//    r = ((unsigned char *)img)[index];
+//    g = ((unsigned char *)img)[index+1];
+//    b = ((unsigned char *)img)[index+2];
+//    
+//    return getColorDistance(r, g, b, averageR, averageG, averageB) + floor;
+//----------------------------------------------//
+    
+//------------COLOURBYDIFFERENCE----------------//
+    int index = 4*(pix.x + imgSize.width * pix.y);
+    int r, g, b;
+    r = ((unsigned char *)img)[index];
+    g = ((unsigned char *)img)[index+1];
+    b = ((unsigned char *)img)[index+2];
+    
+    return 450 - (getColorDistance(r, g, b, averageR, averageG, averageB));
+//----------------------------------------------//
+
+    
+//------------EXPAND BLACK (working)------------//
+//    int index = 4*(pix.x + imgSize.width * pix.y);
+//    int r, g, b;
+//    
+//    r = ((unsigned char *)img)[index];
+//    g = ((unsigned char *)img)[index+1];
+//    b = ((unsigned char *)img)[index+2];
+//    return (r + g + b) / 3 + floor;
+//---------------------------------------------//
+    
+//------------EXPAND GREEN/WHITE (sort of working)-------//
+//    int index = 4*(pix.x + imgSize.width * pix.y);
+//    int r, g, b;
+//    
+//    r = ((unsigned char *)img)[index];
+//    g = ((unsigned char *)img)[index+1];
+//    b = ((unsigned char *)img)[index+2];
+//    return 255 - (g) + floor;
+//---------------------------------------------//
+
+    
+//-----------CIRCLE (working) -----------------//
+//    NSPoint c = NSMakePoint(image.size.width/2, image.size.height/2);
+//    float rad = image.size.width/8;
+//    
+//    double dist = sqrt((pix.x-c.x)*(pix.x-c.x) + (pix.y-c.y)*(pix.y-c.y));
+//    if (dist < rad) {
+//        return 0.1;
+//    } else {
+//        return 1;
+//    }
+//--------------------------------------------//
+}
+
+#pragma mark Interface Functions
 
 /* adjacencyMatrix is still in memory after this method remember to free once used */
 -(cholmod_sparse *) getAdj {
     //Some required values
     const void *imgData = [imData bytes];
-    int height = image.size.height;
-    int width = image.size.width;
+    int height = image.size.height+1;
+    int width = image.size.width+1;
     int x, y, nodes = height * width;
     //Cholmod stuff
     cholmod_common c;
@@ -81,22 +130,21 @@
     c.print = 5;
     cholmod_triplet *tempTrip = cholmod_allocate_triplet(nodes, nodes, nodes*4, UPPER_SYMMETRICAL, CHOLMOD_REAL, &c);
     cholmod_sparse *adjacencyMatrix;
-    //Start creating
-    int atNode = 0;
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            if (y < height - 1) {
-                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 35, imgData);
-                [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:atNode col:atNode+width andValue:weight];
-            }
-            if(x < width - 1) {                
-                double weight = getWeightBetween(NSMakePoint(x, y), NSMakePoint(x, y+1), 35, imgData);
-                [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:atNode col:atNode+1 andValue:weight];
-            }
-            atNode++;
+    
+    //Start creating  
+    for (y = 0; y < height-1; y++) {
+        for(x = 0; x < width-1; x++){
+            int botLeft = x + y *width;
+            int topRight = botLeft + 1 + width;
+            double weightForPixel = [self getWeightForPixel: NSMakePoint(x, y) withSize:image.size andFloor:35 andImage:imgData];
+            [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:botLeft col:botLeft+1 andValue:weightForPixel];
+            [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:botLeft col:botLeft+width andValue:weightForPixel];
+            [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:botLeft+1 col:topRight andValue:weightForPixel];
+            [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:botLeft+width col:topRight andValue:weightForPixel];
         }
     }
     adjacencyMatrix = cholmod_triplet_to_sparse(tempTrip, tempTrip->nzmax, &c);
+    
     cholmod_free_triplet(&tempTrip, &c);
     cholmod_finish(&c);
     return adjacencyMatrix;

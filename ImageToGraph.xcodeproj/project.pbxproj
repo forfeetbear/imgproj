@@ -13,6 +13,8 @@
 		4A16D29B1666FFF5004A10C4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4A16D2991666FFF5004A10C4 /* Credits.rtf */; };
 		4A16D29E1666FFF5004A10C4 /* ImageToGraphAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A16D29D1666FFF5004A10C4 /* ImageToGraphAppDelegate.mm */; };
 		4A16D2A11666FFF6004A10C4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A16D29F1666FFF6004A10C4 /* MainMenu.xib */; };
+		4A1AAF64167FBE0100E04685 /* ImageLayoutOpenGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A1AAF63167FBE0100E04685 /* ImageLayoutOpenGLView.mm */; };
+		4A1AAF67167FC71F00E04685 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A1AAF66167FC71F00E04685 /* OpenGL.framework */; };
 		4A250B0B1677E96000CE5DB4 /* libopencv_calib3d.2.4.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A250AFA1677E96000CE5DB4 /* libopencv_calib3d.2.4.3.dylib */; };
 		4A250B0C1677E96000CE5DB4 /* libopencv_contrib.2.4.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A250AFB1677E96000CE5DB4 /* libopencv_contrib.2.4.3.dylib */; };
 		4A250B0D1677E96000CE5DB4 /* libopencv_core.2.4.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A250AFC1677E96000CE5DB4 /* libopencv_core.2.4.3.dylib */; };
@@ -56,6 +58,9 @@
 		4A16D29C1666FFF5004A10C4 /* ImageToGraphAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageToGraphAppDelegate.h; sourceTree = "<group>"; };
 		4A16D29D1666FFF5004A10C4 /* ImageToGraphAppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageToGraphAppDelegate.mm; sourceTree = "<group>"; };
 		4A16D2A01666FFF6004A10C4 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		4A1AAF62167FBE0100E04685 /* ImageLayoutOpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageLayoutOpenGLView.h; sourceTree = "<group>"; };
+		4A1AAF63167FBE0100E04685 /* ImageLayoutOpenGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageLayoutOpenGLView.mm; sourceTree = "<group>"; };
+		4A1AAF66167FC71F00E04685 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		4A250AFA1677E96000CE5DB4 /* libopencv_calib3d.2.4.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_calib3d.2.4.3.dylib; path = ../../../../../../../usr/local/lib/libopencv_calib3d.2.4.3.dylib; sourceTree = "<group>"; };
 		4A250AFB1677E96000CE5DB4 /* libopencv_contrib.2.4.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_contrib.2.4.3.dylib; path = ../../../../../../../usr/local/lib/libopencv_contrib.2.4.3.dylib; sourceTree = "<group>"; };
 		4A250AFC1677E96000CE5DB4 /* libopencv_core.2.4.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.2.4.3.dylib; path = ../../../../../../../usr/local/lib/libopencv_core.2.4.3.dylib; sourceTree = "<group>"; };
@@ -96,6 +101,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A1AAF67167FC71F00E04685 /* OpenGL.framework in Frameworks */,
 				4A16D28B1666FFF5004A10C4 /* Cocoa.framework in Frameworks */,
 				4A250B1C1677EBDA00CE5DB4 /* Accelerate.framework in Frameworks */,
 				4AEF5C0A16714D2700EC172C /* libamd.a in Frameworks */,
@@ -145,6 +151,7 @@
 		4A16D2891666FFF5004A10C4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4A1AAF66167FC71F00E04685 /* OpenGL.framework */,
 				4AC849B5166EFD9500A250F7 /* Accelerate.framework */,
 				4A16D28A1666FFF5004A10C4 /* Cocoa.framework */,
 				4A16D28C1666FFF5004A10C4 /* Other Frameworks */,
@@ -180,6 +187,8 @@
 				4A70C6E71677EF6D00407579 /* CHOLMODUtil.mm */,
 				4A70C6F216781AA400407579 /* LayoutToImage.h */,
 				4A70C6F316781AA400407579 /* LayoutToImage.mm */,
+				4A1AAF62167FBE0100E04685 /* ImageLayoutOpenGLView.h */,
+				4A1AAF63167FBE0100E04685 /* ImageLayoutOpenGLView.mm */,
 				4A16D2911666FFF5004A10C4 /* Supporting Files */,
 			);
 			path = ImageToGraph;
@@ -297,6 +306,7 @@
 				4A250B1F1677EE3200CE5DB4 /* NSImage+OpenCV.mm in Sources */,
 				4A70C6E81677EF6D00407579 /* CHOLMODUtil.mm in Sources */,
 				4A70C6F416781AA400407579 /* LayoutToImage.mm in Sources */,
+				4A1AAF64167FBE0100E04685 /* ImageLayoutOpenGLView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
