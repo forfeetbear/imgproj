@@ -49,24 +49,6 @@ static void drawAnObject(const void *image, int width, int height,
     
     glBegin(GL_QUADS);
     {
-        glNormal3d(0, 0, 1);
-        //float pixel = widthBound*2 / width;
-        //int x = 0, y = 0;
-        
-//        for(int i = 0; i < xcords->nzmax; i++) {
-//            glTexCoord2f(x, y);
-//            float xPos = (((double *)xcords->x)[i]/width)*widthBound*2;
-//            float yPos = (((double *)ycords->x)[i]/height)*heightBound*2;
-//            glVertex3f(-widthBound + xPos, heightBound - yPos, 0);
-//            glVertex3f(-widthBound + xPos, heightBound - yPos - pixel, 0);
-//            glVertex3f(-widthBound + xPos + pixel, heightBound - yPos - pixel, 0);
-//            glVertex3f(-widthBound + xPos + pixel, heightBound - yPos, 0);
-//            x++;
-//            if (x >= width) {
-//                y++;
-//                x = 0;
-//            }
-//        }
         float xPos, yPos;
         
         for(int y = 0; y < height; y++) {

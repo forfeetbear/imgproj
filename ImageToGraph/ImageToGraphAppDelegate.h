@@ -7,11 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <opencv2/highgui/highgui.hpp>
-#import <opencv2/core/core.hpp>
 #import "NSGraphView.h"
 #import "NSImage+OpenCV.h"
-#import "LayoutToImage.h"
 #import "ImageLayoutOpenGLView.h"
 
 typedef double (^weightFunction)(NSPoint, NSPoint, double, const void *);
@@ -21,10 +18,11 @@ typedef double (^weightFunction)(NSPoint, NSPoint, double, const void *);
 @property (assign) IBOutlet NSWindow *window;
 @property (weak) IBOutlet NSImageView *_image;
 @property (weak) IBOutlet NSGraphView *_gView;
-@property NSString *fileName;
 @property (unsafe_unretained) IBOutlet NSWindow *gWindow;
 @property (unsafe_unretained) IBOutlet NSWindow *glWindow;
 @property (weak) IBOutlet ImageLayoutOpenGLView *oglView;
+
+@property NSString *fileName;
 
 - (IBAction)pressDebugButton:(id)sender;
 - (IBAction)pressOtherDebugButton:(id)sender;

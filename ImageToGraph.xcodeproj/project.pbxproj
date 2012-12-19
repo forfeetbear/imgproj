@@ -35,7 +35,6 @@
 		4A250B1C1677EBDA00CE5DB4 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AC849B5166EFD9500A250F7 /* Accelerate.framework */; };
 		4A250B1F1677EE3200CE5DB4 /* NSImage+OpenCV.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A250B1E1677EE3200CE5DB4 /* NSImage+OpenCV.mm */; };
 		4A70C6E81677EF6D00407579 /* CHOLMODUtil.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A70C6E71677EF6D00407579 /* CHOLMODUtil.mm */; };
-		4A70C6F416781AA400407579 /* LayoutToImage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A70C6F316781AA400407579 /* LayoutToImage.mm */; };
 		4A81EB90166FF80D0089EAF6 /* libcholmod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A81EB8F166FF80D0089EAF6 /* libcholmod.a */; };
 		4A81EB92166FF8750089EAF6 /* libcolamd.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A81EB91166FF8750089EAF6 /* libcolamd.a */; };
 		4AD90F741667FF3B002AE9E4 /* ImageToGraph.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4AD90F731667FF3B002AE9E4 /* ImageToGraph.mm */; };
@@ -82,8 +81,6 @@
 		4A250B1E1677EE3200CE5DB4 /* NSImage+OpenCV.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSImage+OpenCV.mm"; sourceTree = "<group>"; };
 		4A70C6E61677EF6D00407579 /* CHOLMODUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHOLMODUtil.h; sourceTree = "<group>"; };
 		4A70C6E71677EF6D00407579 /* CHOLMODUtil.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHOLMODUtil.mm; sourceTree = "<group>"; };
-		4A70C6F216781AA400407579 /* LayoutToImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutToImage.h; sourceTree = "<group>"; };
-		4A70C6F316781AA400407579 /* LayoutToImage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayoutToImage.mm; sourceTree = "<group>"; };
 		4A81EB8F166FF80D0089EAF6 /* libcholmod.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcholmod.a; path = ../libraries/SuiteSparse/CHOLMOD/Lib/libcholmod.a; sourceTree = "<group>"; };
 		4A81EB91166FF8750089EAF6 /* libcolamd.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcolamd.a; path = ../libraries/SuiteSparse/COLAMD/Lib/libcolamd.a; sourceTree = "<group>"; };
 		4AC849B5166EFD9500A250F7 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -185,8 +182,6 @@
 				4A250B1E1677EE3200CE5DB4 /* NSImage+OpenCV.mm */,
 				4A70C6E61677EF6D00407579 /* CHOLMODUtil.h */,
 				4A70C6E71677EF6D00407579 /* CHOLMODUtil.mm */,
-				4A70C6F216781AA400407579 /* LayoutToImage.h */,
-				4A70C6F316781AA400407579 /* LayoutToImage.mm */,
 				4A1AAF62167FBE0100E04685 /* ImageLayoutOpenGLView.h */,
 				4A1AAF63167FBE0100E04685 /* ImageLayoutOpenGLView.mm */,
 				4A16D2911666FFF5004A10C4 /* Supporting Files */,
@@ -305,7 +300,6 @@
 				4AD90F7A166849E3002AE9E4 /* NSGraphView.mm in Sources */,
 				4A250B1F1677EE3200CE5DB4 /* NSImage+OpenCV.mm in Sources */,
 				4A70C6E81677EF6D00407579 /* CHOLMODUtil.mm in Sources */,
-				4A70C6F416781AA400407579 /* LayoutToImage.mm in Sources */,
 				4A1AAF64167FBE0100E04685 /* ImageLayoutOpenGLView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

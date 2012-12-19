@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <CHOLMOD/Include/cholmod.h>
-#import <opencv2/highgui/highgui.hpp>
-#import <opencv2/core/core.hpp>
 #import "CHOLMODUtil.h"
 
 typedef enum {EASY, ACCORDINGTOPIXEL, RANDOM} weight_t;
