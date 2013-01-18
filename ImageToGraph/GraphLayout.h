@@ -23,6 +23,8 @@
     int numUnknownY;
     NSMutableData *indicesNeededXCHOL;
     NSMutableData *indicesNeededYCHOL;
+    cholmod_dense *solvedX;
+    cholmod_dense *solvedY;
 }
 
 -(id) initWithGraph: (cholmod_sparse *)graphRep andImageSize: (NSSize) size;

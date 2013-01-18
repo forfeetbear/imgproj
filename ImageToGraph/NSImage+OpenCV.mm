@@ -30,8 +30,9 @@ static void ProviderReleaseDataNOP(void *info, const void *data, size_t size)
     [NSGraphicsContext restoreGraphicsState];
     
     CGColorSpaceRelease(colorSpace);
+    NSData *imageData = [NSData dataWithBytes:CGBitmapContextGetData(bitmapContext) length:bytesPerRow*self.size.height];
     CGContextRelease(bitmapContext);
-    return [NSData dataWithBytes:CGBitmapContextGetData(bitmapContext) length:bytesPerRow*self.size.height];
+    return imageData;
 }
 
 -(CGImageRef)CGImage

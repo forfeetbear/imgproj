@@ -1442,8 +1442,8 @@
 			<object class="NSWindowTemplate" id="495972389">
 				<int key="NSWindowStyleMask">15</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{196, 240}, {672, 574}}</string>
-				<int key="NSWTFlags">1685586944</int>
+				<string key="NSWindowRect">{{679, 135}, {672, 574}}</string>
+				<int key="NSWTFlags">1681392640</int>
 				<string key="NSWindowTitle">Window</string>
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
@@ -3846,6 +3846,8 @@
 				<string key="626.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="633.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="635.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<boolean value="NO" key="639.IBNSWindowAutoPositionCentersHorizontal"/>
+				<boolean value="NO" key="639.IBNSWindowAutoPositionCentersVertical"/>
 				<string key="639.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<boolean value="NO" key="639.NSWindowTemplate.visibleAtLaunch"/>
 				<array class="NSMutableArray" key="640.IBNSViewMetadataConstraints">

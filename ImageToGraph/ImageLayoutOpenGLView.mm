@@ -94,7 +94,6 @@ static void drawAnObject(const void *image, int width, int height,
         height = 0;
         xcords = NULL;
         ycords = NULL;
-        // Initialization code here.
     }
     
     return self;
@@ -116,10 +115,19 @@ static void drawAnObject(const void *image, int width, int height,
     xcords = cholmod_copy_dense(x, &common);
     ycords = cholmod_copy_dense(y, &common);
     cholmod_finish(&common);
+    
     self.needsDisplay = YES;
 }
 
-- (void)drawRect:(NSRect)dirtyRect {
+- (void)drawRect:(NSRect)frameRect {    
+    // inform the context that the view has been resized
+    //[self update];
+    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    // adjust the viewport and frustum transforms
+    // (gluLookAt() doesn't work properly)
+    glViewport(0, 0, frameRect.size.width, frameRect.size.height);
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     if (width > 0 && height > 0) {

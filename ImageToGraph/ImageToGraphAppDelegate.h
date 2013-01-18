@@ -11,7 +11,7 @@
 #import "NSImage+OpenCV.h"
 #import "ImageLayoutOpenGLView.h"
 
-typedef double (^weightFunction)(NSPoint, NSPoint, double, const void *);
+typedef double (^weightFunction)(NSPoint, NSSize, double, const void *);
 
 @interface ImageToGraphAppDelegate : NSObject <NSApplicationDelegate>
 

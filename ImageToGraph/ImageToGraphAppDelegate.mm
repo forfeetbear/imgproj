@@ -40,135 +40,108 @@
 //    return  1.0 - (r1 + r2) / 2 + f;
 //};
 
-- (weightFunction) WFRedIntensity {
-    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
+//- (weightFunction) WFRedIntensity {
+//    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
+//        assert(f > 0);
+//        int offset1 = p1.x*4 + p1.y*__image.image.size.width*4;
+//        int offset2 = p2.x*4 + p2.y*__image.image.size.width*4;
+//        int r1, r2;
+//        
+//        r1 = ((unsigned char *)im)[offset1];
+//        
+//        r2 = ((unsigned char *)im)[offset2];
+//        
+//        return 255 - (r1 + r2) / 2 + f;
+//        //quick workaround for if colours are black
+//    };
+//}
+//
+//- (weightFunction) WFGreenIntensity {
+//    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
+//        assert(f > 0);
+//        int offset1 = p1.x*4 + p1.y*__image.image.size.width*4;
+//        int offset2 = p2.x*4 + p2.y*__image.image.size.width*4;
+//        int g1, g2;
+//        
+//        g1 = ((unsigned char *)im)[offset1+1];
+//        g2 = ((unsigned char *)im)[offset2+1];
+//        
+//        return (g1 + g2) / 2 + f;
+//        //quick workaround for if colours are black
+//    };
+//}
+//
+//- (weightFunction) WFBlueIntensity {
+//    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
+//        assert(f > 0);
+//        int offset1 = p1.x*4 + p1.y*__image.image.size.width*4;
+//        int offset2 = p2.x*4 + p2.y*__image.image.size.width*4;
+//        int b1, b2;
+//        
+//        b1 = ((unsigned char *)im)[offset1+2];
+//        
+//        b2 = ((unsigned char *)im)[offset2+2];
+//        
+//        return 255 - (b1 + b2) / 2 + f;
+//        //quick workaround for if colours are black
+//    };
+//}
+//
+- (weightFunction) WFShrinkBlack {
+    return ^double (NSPoint p, NSSize s, double f, const void *im) {
         assert(f > 0);
-        int offset1 = p1.x*4 + p1.y*__image.image.size.width*4;
-        int offset2 = p2.x*4 + p2.y*__image.image.size.width*4;
-        int r1, g1, b1, r2, g2, b2;
+        int index = 4*(p.x + s.width * p.y);
+        int r, g, b;
         
-        r1 = ((unsigned char *)im)[offset1];
-        g1 = ((unsigned char *)im)[offset1+1];
-        b1 = ((unsigned char *)im)[offset1+2];
+        r = ((unsigned char *)im)[index];
+        g = ((unsigned char *)im)[index+1];
+        b = ((unsigned char *)im)[index+2];
+        return 255 - (r + g + b) / 3 + f;
+    };
+}
+
+- (weightFunction) WFExpandBlack {
+    return ^double (NSPoint p, NSSize s, double f, const void *im) {
+        assert(f > 0);        
+        int index = 4*(p.x + s.width * p.y);
+        int r, g, b;
         
-        r2 = ((unsigned char *)im)[offset2];
-        g2 = ((unsigned char *)im)[offset2+1];
-        b2 = ((unsigned char *)im)[offset2+2];
-        
-        return 255 - (r1 + r2) / 2 + f;
+        r = ((unsigned char *)im)[index];
+        g = ((unsigned char *)im)[index+1];
+        b = ((unsigned char *)im)[index+2];
+        return (r + g + b) / 3 + f;
         //quick workaround for if colours are black
     };
 }
 
-- (weightFunction) WFGreenIntensity {
-    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
-        assert(f > 0);
-        int offset1 = p1.x*4 + p1.y*__image.image.size.width*4;
-        int offset2 = p2.x*4 + p2.y*__image.image.size.width*4;
-        int r1, g1, b1, r2, g2, b2;
-        
-        r1 = ((unsigned char *)im)[offset1];
-        g1 = ((unsigned char *)im)[offset1+1];
-        b1 = ((unsigned char *)im)[offset1+2];
-        
-        r2 = ((unsigned char *)im)[offset2];
-        g2 = ((unsigned char *)im)[offset2+1];
-        b2 = ((unsigned char *)im)[offset2+2];
-        
-        return (g1 + g2) / 2 + f;
-        //quick workaround for if colours are black
-    };
-}
-
-- (weightFunction) WFBlueIntensity {
-    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
-        assert(f > 0);
-        int offset1 = p1.x*4 + p1.y*__image.image.size.width*4;
-        int offset2 = p2.x*4 + p2.y*__image.image.size.width*4;
-        int r1, g1, b1, r2, g2, b2;
-        
-        r1 = ((unsigned char *)im)[offset1];
-        g1 = ((unsigned char *)im)[offset1+1];
-        b1 = ((unsigned char *)im)[offset1+2];
-        
-        r2 = ((unsigned char *)im)[offset2];
-        g2 = ((unsigned char *)im)[offset2+1];
-        b2 = ((unsigned char *)im)[offset2+2];
-        
-        return 255 - (b1 + b2) / 2 + f;
-        //quick workaround for if colours are black
-    };
-}
-
-- (weightFunction) WFInvertedIntensity {
-    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
-        assert(f > 0);
-        int offset1 = p1.x*4 + p1.y*__image.image.size.width*4;
-        int offset2 = p2.x*4 + p2.y*__image.image.size.width*4;
-        int r1, g1, b1, r2, g2, b2;
-        
-        r1 = ((unsigned char *)im)[offset1];
-        g1 = ((unsigned char *)im)[offset1+1];
-        b1 = ((unsigned char *)im)[offset1+2];
-        
-        r2 = ((unsigned char *)im)[offset2];
-        g2 = ((unsigned char *)im)[offset2+1];
-        b2 = ((unsigned char *)im)[offset2+2];
-        
-        return ((r1 + r2 + g1 + g2 + b1 + b2) / 6 + f);
-        //quick workaround for if colours are black
-    };
-}
-
-- (weightFunction) WFIntensity {
-    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
-        assert(f > 0);
-        int offset1 = p1.x*4 + p1.y*__image.image.size.width*4;
-        int offset2 = p2.x*4 + p2.y*__image.image.size.width*4;
-        int r1, g1, b1, r2, g2, b2;
-        
-        r1 = ((unsigned char *)im)[offset1];
-        g1 = ((unsigned char *)im)[offset1+1];
-        b1 = ((unsigned char *)im)[offset1+2];
-        
-        r2 = ((unsigned char *)im)[offset2];
-        g2 = ((unsigned char *)im)[offset2+1];
-        b2 = ((unsigned char *)im)[offset2+2];
-        
-        return 255 - (r1 + r2 + g1 + g2 + b1 + b2) / 6 + f;
-        //quick workaround for if colours are black
-    };
-}
-
-weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *rawImg) {
+weightFunction WFEasy = ^double(NSPoint p, NSSize s, double f, const void *rawImg) {
     return 1;
 };
 
 - (weightFunction) makeCircleFunctionWithCentre: (NSPoint) c andRadius: (double) rad {
-    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
-        NSPoint average = NSMakePoint((p1.x+p2.x)/2, (p1.y+p2.y)/2);
-        double dist = sqrt((average.x-c.x)*(average.x-c.x) + (average.y-c.y)*(average.y-c.y));
+    return ^double (NSPoint p, NSSize size, double f, const void *im) {
+        double dist = sqrt((p.x-c.x)*(p.x-c.x) + (p.y-c.y)*(p.y-c.y));
         if (dist < rad) {
-            return 0.1;
+            return dist+0.1;
         } else {
-            return 1;
+            return rad;
         }
     };
 }
 
-- (weightFunction) makeRectangleFunctionWithCentre: (NSPoint) c withWidth: (double) w andHeight: (double) h {
-    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
-        NSPoint average = NSMakePoint((p1.x+p2.x)/2, (p1.y+p2.y)/2);
-        double maxX = c.x + w/2;
-        double minX = c.x - w/2;
-        double maxY = c.y + h/2;
-        double minY = c.y - h/2;
-        if (average.x > minX && average.x < maxX && average.y > minY && average.y < maxY) {
-            return 1;
-        }
-        return 0.1;
-    };
-}
+//- (weightFunction) makeRectangleFunctionWithCentre: (NSPoint) c withWidth: (double) w andHeight: (double) h {
+//    return ^double (NSPoint p1, NSPoint p2, double f, const void *im) {
+//        NSPoint average = NSMakePoint((p1.x+p2.x)/2, (p1.y+p2.y)/2);
+//        double maxX = c.x + w/2;
+//        double minX = c.x - w/2;
+//        double maxY = c.y + h/2;
+//        double minY = c.y - h/2;
+//        if (average.x > minX && average.x < maxX && average.y > minY && average.y < maxY) {
+//            return 1;
+//        }
+//        return 0.1;
+//    };
+//}
 
 #pragma mark Initialisation
 
@@ -184,7 +157,8 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
     cholmod_start(&common);
     
     NSLog(@"Starting:");
-    ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image usingWeightFunction:[self makeCircleFunctionWithCentre:NSMakePoint(__image.image.size.width/2, __image.image.size.height/2) andRadius:__image.image.size.width/4]];
+    weightFunction WFCircle = [self makeCircleFunctionWithCentre:NSMakePoint(__image.image.size.width/2, __image.image.size.height/2) andRadius:__image.image.size.height/2];
+    ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image useWeightFunction:[self WFExpandBlack]];
     if(creator) {
         NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
@@ -194,8 +168,6 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
         cholmod_dense *ycord = [gLayout getY];
         
         //interpolation
-//        LayoutToImage *layout = [[LayoutToImage alloc] initWithImage:__image.image andLayoutWithXCoords:xcord andYCoords:ycord];
-//        cv::Mat out = [layout interpolatedImage];
         [_oglView drawImageFromData:[__image.image data] withSize:__image.image.size xCoords:xcord yCoords:ycord];
         _glWindow.isVisible = YES;
         
@@ -215,7 +187,8 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
     cholmod_common common;
     cholmod_start(&common);
     NSLog(@"Starting:");
-    ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image usingWeightFunction:[self WFInvertedIntensity]];
+    weightFunction WFCircle = [self makeCircleFunctionWithCentre:NSMakePoint(__image.image.size.width/2, __image.image.size.height/2) andRadius:__image.image.size.height/2];
+    ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image useWeightFunction:WFCircle];
     if(creator) {
         NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
@@ -225,13 +198,8 @@ weightFunction WFEasy = ^double(NSPoint p1, NSPoint p2, double f, const void *ra
         cholmod_dense *ycord = [gLayout getY];
         
         //interpolation
-//        LayoutToImage *layout = [[LayoutToImage alloc] initWithImage:__image.image andLayoutWithXCoords:xcord andYCoords:ycord];
-//        cv::Mat out = [layout interpolatedImage];
         [_oglView drawImageFromData:[__image.image data] withSize:__image.image.size xCoords:xcord yCoords:ycord];
         _glWindow.isVisible = YES;
-        
-//        [__gView drawPointsWithX:xcord andY:ycord  andPic:__image.image];
-//        _gWindow.isVisible = YES;
         
         cholmod_free_sparse(&adj, &common);
     } else {

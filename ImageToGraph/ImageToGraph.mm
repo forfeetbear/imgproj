@@ -15,12 +15,12 @@
 
 #pragma mark Constructor(s)
 
--(id) initWithImage:(NSImage *)im usingWeightFunction: (weightFunction) getWeight {
+-(id) initWithImage:(NSImage *)im useWeightFunction:(weightFunction)f{
     //consider having a block for the weight function here
     if ((self = [super init]) && im.size.width > 0 && im.size.height > 0) {
         int index;
         image = im;
-        getWeightBetween = getWeight;
+        wf = f;
         
         //New code for raw image buffer
         imData = [im data];
@@ -57,7 +57,7 @@ static double getColorDistance(int r1, int g1, int b1, int r2, int g2, int b2) {
 
 -(double) getWeightForPixel: (NSPoint) pix withSize: (NSSize) imgSize andFloor: (double) floor andImage: (const void *) img {
 //------------SIMPLE (working)------------------//
-//    return 1;
+    return 1;
 //----------------------------------------------//
     
 //------------COLOURBYDIFFERENCE----------------//
@@ -71,24 +71,17 @@ static double getColorDistance(int r1, int g1, int b1, int r2, int g2, int b2) {
 //----------------------------------------------//
     
 //------------COLOURBYDIFFERENCE----------------//
-    int index = 4*(pix.x + imgSize.width * pix.y);
-    int r, g, b;
-    r = ((unsigned char *)img)[index];
-    g = ((unsigned char *)img)[index+1];
-    b = ((unsigned char *)img)[index+2];
-    
-    return 450 - (getColorDistance(r, g, b, averageR, averageG, averageB));
+//    int index = 4*(pix.x + imgSize.width * pix.y);
+//    int r, g, b;
+//    r = ((unsigned char *)img)[index];
+//    g = ((unsigned char *)img)[index+1];
+//    b = ((unsigned char *)img)[index+2];
+//    
+//    return 442 - (getColorDistance(r, g, b, averageR, averageG, averageB));
 //----------------------------------------------//
 
     
 //------------EXPAND BLACK (working)------------//
-//    int index = 4*(pix.x + imgSize.width * pix.y);
-//    int r, g, b;
-//    
-//    r = ((unsigned char *)img)[index];
-//    g = ((unsigned char *)img)[index+1];
-//    b = ((unsigned char *)img)[index+2];
-//    return (r + g + b) / 3 + floor;
 //---------------------------------------------//
     
 //------------EXPAND GREEN/WHITE (sort of working)-------//
@@ -107,10 +100,11 @@ static double getColorDistance(int r1, int g1, int b1, int r2, int g2, int b2) {
 //    float rad = image.size.width/8;
 //    
 //    double dist = sqrt((pix.x-c.x)*(pix.x-c.x) + (pix.y-c.y)*(pix.y-c.y));
-//    if (dist < rad) {
-//        return 0.1;
+//    double diff = rad-dist;
+//    if (diff > 0) {
+//        return rad/diff;
 //    } else {
-//        return 1;
+//        return rad;
 //    }
 //--------------------------------------------//
 }
@@ -136,7 +130,7 @@ static double getColorDistance(int r1, int g1, int b1, int r2, int g2, int b2) {
         for(x = 0; x < width-1; x++){
             int botLeft = x + y *width;
             int topRight = botLeft + 1 + width;
-            double weightForPixel = [self getWeightForPixel: NSMakePoint(x, y) withSize:image.size andFloor:35 andImage:imgData];
+            double weightForPixel = wf(NSMakePoint(x, y), image.size, 50, imgData);
             [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:botLeft col:botLeft+1 andValue:weightForPixel];
             [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:botLeft col:botLeft+width andValue:weightForPixel];
             [CHOLMODUtil insertIntoTriplet:tempTrip WithRow:botLeft+1 col:topRight andValue:weightForPixel];

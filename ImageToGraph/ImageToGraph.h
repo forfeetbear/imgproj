@@ -11,18 +11,18 @@
 #import "CHOLMODUtil.h"
 
 typedef enum {EASY, ACCORDINGTOPIXEL, RANDOM} weight_t;
-typedef double (^weightFunction)(NSPoint, NSPoint, double, const void *);
+typedef double (^weightFunction)(NSPoint, NSSize, double, const void *);
 
 @interface ImageToGraph : NSObject {
     NSImage *image;
-    weightFunction getWeightBetween;
     NSData *imData;
     int averageR;
     int averageG;
     int averageB;
+    weightFunction wf;
 }
 
--(id) initWithImage: (NSImage *) im usingWeightFunction: (weightFunction)getWeight;
+-(id) initWithImage: (NSImage *) im useWeightFunction: (weightFunction) f;
 -(cholmod_sparse *) getAdj;
 
 @end
