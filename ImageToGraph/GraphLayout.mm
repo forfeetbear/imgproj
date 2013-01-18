@@ -85,49 +85,7 @@
     ((double *)t->x)[index] = x;
 }
 
-#pragma mark Internal Functions
-
--(cholmod_dense) doConjugateGradientWithA: (cholmod_sparse *) A andB: (cholmod_dense *) b withInitialGuess: (cholmod_dense *) x0 andMaxIterations: (int) maxIt {
-    cholmod_common common;
-    cholmod_dense *res0, *resk, *resk1;
-    cholmod_dense *pdir0, *pdirk, *pdirk1;
-    cholmod_dense *xk, xk1;
-    cholmod_dense *tempAx0, *tempApk;
-    double alpha, beta;
-    double scale[2] = {1, 0};
-    double zeroScale[2] = {0, 0};
-    BOOL didAllocateX0 = NO;
-    int k;
-    cholmod_start(&common);
-    tempAx0 = cholmod_allocate_dense(A->nrow, 1, A->nrow, CHOLMOD_REAL, &common);
-    tempApk = cholmod_allocate_dense(A->nrow, 1, A->nrow, CHOLMOD_REAL, &common);
-    if(!x0) {
-        x0 = cholmod_zeros(A->nrow, 1, CHOLMOD_REAL, &common);
-        didAllocateX0 = YES;
-    }
-    
-    //calculate initial residual
-    cholmod_sdmult(A, NO_TRANSPOSE, scale, zeroScale, x0, tempAx0, &common); //could crash since NULL?
-    res0 = [CHOLMODUtil cholmodAddDenseA:b andB:tempAx0 withScalesA:1.0 andB:-1.0];
-    pdir0 = res0;
-    resk = cholmod_copy_dense(res0, &common);
-    pdirk = cholmod_copy_dense(pdir0, &common);
-    xk = cholmod_copy_dense(x0, &common);
-    k = 0;
-    
-    //start iterating
-    for (int i = 0; i < maxIt; i++) {
-        cholmod_sdmult(A, NO_TRANSPOSE, scale, zeroScale, pdirk, tempApk, &common);
-        alpha = [CHOLMODUtil cholmodDotProductOfX:resk andY:resk] / [CHOLMODUtil cholmodDotProductOfX:tempApk andY:pdirk];
-        xk1 = [CHOLMODUtil cholmodAddDenseA:xk andB:pdirk withScalesA:1.0 andB:alpha];
-    }
-    
-    if(didAllocateX0) {
-        cholmod_free_dense(&x0, &common);
-    }
-    cholmod_free_dense(&tempAx0, &common);
-    cholmod_finish(&common);
-}
+#pragma mark Internal FunctionsÇ
 
 -(void) setupDefaultFixedPoints {
     size_t rows = adjCHOL->nrow;
