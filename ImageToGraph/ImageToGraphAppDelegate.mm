@@ -163,8 +163,7 @@ weightFunction WFEasy = ^double(NSPoint p, NSSize s, double f, const void *rawIm
         NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
-        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:adj andImageSize:__image.image.size usingMaxIterations:currentMax];
-        currentMax += 10;
+        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:adj andImageSize:__image.image.size usingMaxIterations:10000];
         cholmod_dense *xcord = [gLayout getX];
         cholmod_dense *ycord = [gLayout getY];
         

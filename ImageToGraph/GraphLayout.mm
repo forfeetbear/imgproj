@@ -130,7 +130,7 @@
         alpha = [CHOLMODUtil cholmodDotProductOfX:zk andY:resk] / [CHOLMODUtil cholmodDotProductOfX:tempApk andY:pdirk];
         xk1 = [CHOLMODUtil cholmodAddDenseA:xk andB:pdirk withScalesA:1.0 andB:alpha];
         resk1 = [CHOLMODUtil cholmodAddDenseA:resk andB:tempApk withScalesA:1.0 andB:-alpha];
-        if([CHOLMODUtil cholmodMagnitudeOf:resk1] < 1) {
+        if([CHOLMODUtil cholmodMagnitudeOf:resk1] < 0.1) {
             NSLog(@"Exited with %d iterations.", i);
             return xk1;
         };
@@ -362,6 +362,7 @@
 -(void) getSolutionYWith: (cholmod_sparse *) Ltilde andRHS: (cholmod_dense *)C {
     cholmod_common common;
     cholmod_start(&common);
+    common.print = 5;
     
     cholmod_dense *guess;
     cholmod_sparse *precond;
