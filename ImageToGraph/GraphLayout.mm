@@ -17,7 +17,7 @@
 
 #pragma mark Constructor/Destructors
 
--(id) initWithGraph: (cholmod_sparse *) graphRep andImageSize: (NSSize) size{
+-(id) initWithGraph: (cholmod_sparse *) graphRep andImageSize: (NSSize) size usingMaxIterations:(int)maxIt{
     cholmod_common common;
     cholmod_start(&common);
     
@@ -39,6 +39,7 @@
         LyCHOL = NULL;
         solvedX = NULL;
         solvedY = NULL;
+        max = maxIt;
         
         //set the coords to junk values (-1)
         for(int i = 0; i < numUnknownX; i++) {
@@ -87,46 +88,82 @@
 
 #pragma mark Internal Functions
 
--(cholmod_dense) doConjugateGradientWithA: (cholmod_sparse *) A andB: (cholmod_dense *) b withInitialGuess: (cholmod_dense *) x0 andMaxIterations: (int) maxIt {
+-(cholmod_dense *) doConjugateGradientWithA: (cholmod_sparse *) A andB: (cholmod_dense *) b withInitialGuess: (cholmod_dense *) x0 andMaxIterations: (int) maxIt andPreconditioner: (cholmod_sparse *) precond {
     cholmod_common common;
+    cholmod_dense *z0, *zk, *zk1;
     cholmod_dense *res0, *resk, *resk1;
     cholmod_dense *pdir0, *pdirk, *pdirk1;
     cholmod_dense *xk, *xk1;
-    cholmod_dense *tempAx0, *tempApk;
+    cholmod_dense *tempApk;
+    resk1 = NULL;
+    zk1 = NULL;
     double alpha, beta;
     double scale[2] = {1, 0};
     double zeroScale[2] = {0, 0};
+    double negScale[2] = {-1, 0};
     BOOL didAllocateX0 = NO;
     int k;
     cholmod_start(&common);
-    tempAx0 = cholmod_allocate_dense(A->nrow, 1, A->nrow, CHOLMOD_REAL, &common);
     tempApk = cholmod_allocate_dense(A->nrow, 1, A->nrow, CHOLMOD_REAL, &common);
+    z0 = cholmod_allocate_dense(A->nrow, 1, A->nrow, CHOLMOD_REAL, &common);
+    zk1 = cholmod_allocate_dense(A->nrow, 1, A->nrow, CHOLMOD_REAL, &common);
+               
     if(!x0) {
         x0 = cholmod_zeros(A->nrow, 1, CHOLMOD_REAL, &common);
         didAllocateX0 = YES;
     }
     
     //calculate initial residual
-    cholmod_sdmult(A, NO_TRANSPOSE, scale, zeroScale, x0, tempAx0, &common); //could crash since NULL?
-    res0 = [CHOLMODUtil cholmodAddDenseA:b andB:tempAx0 withScalesA:1.0 andB:-1.0];
-    pdir0 = res0;
+    cholmod_sdmult(A, NO_TRANSPOSE, negScale, scale, x0, b, &common);
+    res0 = b;
+    cholmod_sdmult(precond, NO_TRANSPOSE, scale, zeroScale, res0, z0, &common);
+    pdir0 = z0;
     resk = cholmod_copy_dense(res0, &common);
     pdirk = cholmod_copy_dense(pdir0, &common);
     xk = cholmod_copy_dense(x0, &common);
+    zk = cholmod_copy_dense(z0, &common);
     k = 0;
     
     //start iterating
     for (int i = 0; i < maxIt; i++) {
         cholmod_sdmult(A, NO_TRANSPOSE, scale, zeroScale, pdirk, tempApk, &common);
-        alpha = [CHOLMODUtil cholmodDotProductOfX:resk andY:resk] / [CHOLMODUtil cholmodDotProductOfX:tempApk andY:pdirk];
+        alpha = [CHOLMODUtil cholmodDotProductOfX:zk andY:resk] / [CHOLMODUtil cholmodDotProductOfX:tempApk andY:pdirk];
         xk1 = [CHOLMODUtil cholmodAddDenseA:xk andB:pdirk withScalesA:1.0 andB:alpha];
+        resk1 = [CHOLMODUtil cholmodAddDenseA:resk andB:tempApk withScalesA:1.0 andB:-alpha];
+        if([CHOLMODUtil cholmodMagnitudeOf:resk1] < 1) {
+            NSLog(@"Exited with %d iterations.", i);
+            return xk1;
+        };
+        cholmod_sdmult(precond, NO_TRANSPOSE, scale, zeroScale, resk1, zk1, &common);
+        beta = [CHOLMODUtil cholmodDotProductOfX:zk1 andY:resk1] / [CHOLMODUtil cholmodDotProductOfX:zk andY:resk];
+        pdirk1 = [CHOLMODUtil cholmodAddDenseA:zk1 andB:pdirk withScalesA:1.0 andB:beta];
+        k++;
+        
+        cholmod_free_dense(&pdirk, &common);
+        cholmod_free_dense(&resk, &common);
+        cholmod_free_dense(&xk, &common);
+        cholmod_free_dense(&zk, &common);
+        pdirk = pdirk1;
+        xk = xk1;
+        resk = resk1;
+        zk = cholmod_copy_dense(zk1, &common);
     }
     
     if(didAllocateX0) {
         cholmod_free_dense(&x0, &common);
     }
-    cholmod_free_dense(&tempAx0, &common);
+    NSLog(@"Exited with %d iterations (max). res was %f", maxIt, [CHOLMODUtil cholmodMagnitudeOf:resk1]);
+    cholmod_free_dense(&tempApk, &common);
+    cholmod_free_dense(&pdirk1, &common);
+    if (resk1) {
+    cholmod_free_dense(&resk1, &common);
+    }
+    if (zk1) {
+    cholmod_free_dense(&zk1, &common);
+    }
     cholmod_finish(&common);
+    
+    return xk1;
 }
 
 -(void) setupDefaultFixedPoints {
@@ -135,7 +172,7 @@
     for (size_t i = 0; i < rows; i+=imageDimensions.width+1) {
         int farSide = i + imageDimensions.width;
         ((double *)xCoordsCHOL->x)[i] = 0;
-        ((double *)xCoordsCHOL->x)[farSide] = imageDimensions.width+1;
+        ((double *)xCoordsCHOL->x)[farSide] = imageDimensions.width;
         numUnknownX -= 2;
     }
     //Add fixed y points - bottom and top edges
@@ -295,42 +332,59 @@
     return result;
 }
 
--(void) getSolutionXWith: (void *) Ltilde andRHS: (void *)C {
+-(void) getSolutionXWith: (cholmod_sparse *) Ltilde andRHS: (cholmod_dense *)C {
     cholmod_common common;
     cholmod_start(&common);
-    common.print = 3;
     
-    cholmod_factor *factor;
-    cholmod_dense *result;
-    cholmod_sparse *symmetricLtilde;
-    symmetricLtilde = cholmod_copy((cholmod_sparse *)Ltilde, UPPER_SYMMETRICAL, MODE_NUMERICAL, &common);
-    factor = cholmod_analyze(symmetricLtilde, &common);
-    cholmod_factorize(symmetricLtilde, factor, &common);
-    result = cholmod_solve(CHOLMOD_A, factor, (cholmod_dense *)C, &common);
+    cholmod_dense *guess;
+    cholmod_sparse *precond;
     
-    cholmod_free_factor(&factor, &common);
-    cholmod_free_sparse(&symmetricLtilde, &common);
+    guess = cholmod_allocate_dense(numUnknownX, 1, numUnknownX, CHOLMOD_REAL, &common);
+    precond = cholmod_band(Ltilde, 0, 0, MODE_NUMERICAL, &common);
+    
+    long nonzero = cholmod_nnz(precond, &common);
+    for (int i = 0; i < nonzero; i++) {
+        ((double *)precond->x)[i] = 1.0 / ((double *)precond->x)[i];
+    }
+    
+    int *ind = (int *)[indicesNeededXCHOL bytes];
+    for (int i = 0; i < numUnknownX; i++) {
+        ((double *)guess->x)[i] = ind[i] % ((int)imageDimensions.width+1);
+    }
+    solvedX = [self doConjugateGradientWithA:Ltilde andB:C withInitialGuess:guess andMaxIterations:max andPreconditioner:precond]; //result
+    
+    cholmod_free_dense(&guess, &common);
+    cholmod_free_sparse(&precond, &common);
+
     cholmod_finish(&common);
-    solvedX = result;
 }
 
 -(void) getSolutionYWith: (cholmod_sparse *) Ltilde andRHS: (cholmod_dense *)C {
     cholmod_common common;
     cholmod_start(&common);
-    common.print = 3;
     
-    cholmod_factor *factor;
-    cholmod_dense *result;
-    cholmod_sparse *symmetricLtilde;
-    symmetricLtilde = cholmod_copy(Ltilde, UPPER_SYMMETRICAL, MODE_NUMERICAL, &common);
-    factor = cholmod_analyze(symmetricLtilde, &common);
-    cholmod_factorize(symmetricLtilde, factor, &common);
-    result = cholmod_solve(CHOLMOD_A, factor, C, &common);
+    cholmod_dense *guess;
+    cholmod_sparse *precond;
     
-    cholmod_free_factor(&factor, &common);
-    cholmod_free_sparse(&symmetricLtilde, &common);
+    guess = cholmod_allocate_dense(numUnknownY, 1, numUnknownY, CHOLMOD_REAL, &common);
+    precond = cholmod_band(Ltilde, 0, 0, MODE_NUMERICAL, &common);
+    
+    long nonzero = cholmod_nnz(precond, &common);
+    for (int i = 0; i < nonzero; i++) {
+        ((double *)precond->x)[i] = 1.0 / ((double *)precond->x)[i];
+    }
+    
+    int *ind = (int *)[indicesNeededYCHOL bytes];
+    for (int i = 0; i < numUnknownY; i++) {
+        ((double *)guess->x)[i] = ind[i] / ((int)imageDimensions.width+1);
+    }
+    
+    solvedY = [self doConjugateGradientWithA:Ltilde andB:C withInitialGuess:guess andMaxIterations:max andPreconditioner:precond]; //result
+    
+    cholmod_free_dense(&guess, &common);
+    cholmod_free_sparse(&precond, &common);
+    
     cholmod_finish(&common);
-    solvedY = result;
 }
 
 -(void) fillXWith: (cholmod_dense *) sol {
@@ -366,30 +420,6 @@
     cholmod_dense *Cx = [self getCx];
     NSLog(@"Creating Cy");
     cholmod_dense *Cy = [self getCy];
-    
-    //Trying concurrrency for these two steps
-//    NSMethodSignature *sig = [self methodSignatureForSelector:@selector(getSolutionXWith:andRHS:)];
-//    NSMethodSignature *sig2 = [self methodSignatureForSelector:@selector(getSolutionYWith:andRHS:)];
-//    NSInvocation *invoc = [NSInvocation invocationWithMethodSignature:sig];
-//    NSInvocation *invoc2 = [NSInvocation invocationWithMethodSignature:sig2];
-//    [invoc setTarget:self];
-//    [invoc2 setTarget:self];
-//    [invoc setSelector:@selector(getSolutionXWith:andRHS:)];
-//    [invoc2 setSelector:@selector(getSolutionYWith:andRHS:)];
-//    [invoc setArgument:LxCHOL atIndex:2];
-//    [invoc2 setArgument:LyCHOL atIndex:2];
-//    [invoc setArgument:Cx atIndex:3];
-//    [invoc2 setArgument:Cy atIndex:3];
-//    [invoc retainArguments];
-//    [invoc2 retainArguments];
-//    NSOperationQueue *pq = [[NSOperationQueue alloc] init];
-//    NSLog(@"Queuing x solve");
-//    [pq addOperation:[[NSInvocationOperation alloc]initWithInvocation:invoc]];
-//    NSLog(@"Queuing y solve");
-//    [pq addOperation:[[NSInvocationOperation alloc]initWithInvocation:invoc2]];
-//    
-//    [pq waitUntilAllOperationsAreFinished];
-//    NSLog(@"Solving finished.");
     
     NSLog(@"Solving for X");
     [self getSolutionXWith:LxCHOL andRHS:Cx];

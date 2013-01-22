@@ -10,6 +10,18 @@
 
 @implementation CHOLMODUtil
 
++(double) cholmodMagnitudeOf: (cholmod_dense *) a {
+    if(a->ncol > 1) {
+        NSLog(@"invalid vector");
+        return 0.0;
+    }
+    double total = 0.0;
+    for (int i = 0; i < a->nrow; i++) {
+        total += ((double *)a->x)[i] * ((double *)a->x)[i];
+    }
+    return sqrt(total);
+}
+
 +(double) cholmodDotProductOfX: (cholmod_dense *) x andY: (cholmod_dense *) y {
     double sum = 0.0;
     if(x->nrow != y->nrow) {
@@ -20,14 +32,17 @@
         sum += ((double *)x->x)[i] * ((double *)y->x)[i];
     }
     return sum;
+
 }
 
 +(cholmod_dense *) cholmodAddDenseA: (cholmod_dense *) a andB: (cholmod_dense *) b withScalesA: (double) A andB: (double)B{
     cholmod_common common;
+    cholmod_start(&common);
     cholmod_dense *result = cholmod_allocate_dense(a->nrow, 1, a->nrow, CHOLMOD_REAL, &common);
     for (int i = 0; i < a->nrow; i++) {
         ((double *)result->x)[i] = A*((double *)a->x)[i] + B*((double *)b->x)[i];
     }
+    cholmod_finish(&common);
     return result;
 }
 

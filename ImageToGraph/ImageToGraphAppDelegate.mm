@@ -122,9 +122,9 @@ weightFunction WFEasy = ^double(NSPoint p, NSSize s, double f, const void *rawIm
     return ^double (NSPoint p, NSSize size, double f, const void *im) {
         double dist = sqrt((p.x-c.x)*(p.x-c.x) + (p.y-c.y)*(p.y-c.y));
         if (dist < rad) {
-            return dist+0.1;
+            return f;
         } else {
-            return rad;
+            return 10*f;
         }
     };
 }
@@ -157,13 +157,14 @@ weightFunction WFEasy = ^double(NSPoint p, NSSize s, double f, const void *rawIm
     cholmod_start(&common);
     
     NSLog(@"Starting:");
-    weightFunction WFCircle = [self makeCircleFunctionWithCentre:NSMakePoint(__image.image.size.width/2, __image.image.size.height/2) andRadius:__image.image.size.height/2];
+    //weightFunction WFCircle = [self makeCircleFunctionWithCentre:NSMakePoint(__image.image.size.width/2, __image.image.size.height/2) andRadius:__image.image.size.height/2];
     ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image useWeightFunction:[self WFExpandBlack]];
     if(creator) {
         NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
-        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:adj andImageSize:__image.image.size];
+        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:adj andImageSize:__image.image.size usingMaxIterations:currentMax];
+        currentMax += 10;
         cholmod_dense *xcord = [gLayout getX];
         cholmod_dense *ycord = [gLayout getY];
         
@@ -174,6 +175,8 @@ weightFunction WFEasy = ^double(NSPoint p, NSSize s, double f, const void *rawIm
         //draw points
         [__gView drawPointsWithX:xcord andY:ycord andPic:__image.image];
         _gWindow.isVisible = YES;
+        
+        sleep(1);
         
         cholmod_free_sparse(&adj, &common);
     } else {
@@ -187,19 +190,23 @@ weightFunction WFEasy = ^double(NSPoint p, NSSize s, double f, const void *rawIm
     cholmod_common common;
     cholmod_start(&common);
     NSLog(@"Starting:");
-    weightFunction WFCircle = [self makeCircleFunctionWithCentre:NSMakePoint(__image.image.size.width/2, __image.image.size.height/2) andRadius:__image.image.size.height/2];
+    weightFunction WFCircle = [self makeCircleFunctionWithCentre:NSMakePoint(__image.image.size.width/2, __image.image.size.height/2) andRadius:__image.image.size.height/8];
     ImageToGraph *creator = [[ImageToGraph alloc] initWithImage:__image.image useWeightFunction:WFCircle];
     if(creator) {
         NSLog(@"Converting image to graph");
         cholmod_sparse *adj = [creator getAdj];
         NSLog(@"Starting Layout:");
-        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:adj andImageSize:__image.image.size];
+        GraphLayout *gLayout = [[GraphLayout alloc] initWithGraph:adj andImageSize:__image.image.size usingMaxIterations:10];
         cholmod_dense *xcord = [gLayout getX];
         cholmod_dense *ycord = [gLayout getY];
         
         //interpolation
         [_oglView drawImageFromData:[__image.image data] withSize:__image.image.size xCoords:xcord yCoords:ycord];
         _glWindow.isVisible = YES;
+        
+        //draw points
+        [__gView drawPointsWithX:xcord andY:ycord andPic:__image.image];
+        _gWindow.isVisible = YES;
         
         cholmod_free_sparse(&adj, &common);
     } else {

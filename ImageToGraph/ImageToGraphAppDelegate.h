@@ -13,7 +13,9 @@
 
 typedef double (^weightFunction)(NSPoint, NSSize, double, const void *);
 
-@interface ImageToGraphAppDelegate : NSObject <NSApplicationDelegate>
+@interface ImageToGraphAppDelegate : NSObject <NSApplicationDelegate> {
+    int currentMax;
+}
 
 @property (assign) IBOutlet NSWindow *window;
 @property (weak) IBOutlet NSImageView *_image;

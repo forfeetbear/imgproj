@@ -115,7 +115,7 @@ static void drawAnObject(const void *image, int width, int height,
     xcords = cholmod_copy_dense(x, &common);
     ycords = cholmod_copy_dense(y, &common);
     cholmod_finish(&common);
-    
+
     self.needsDisplay = YES;
 }
 

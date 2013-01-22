@@ -25,9 +25,10 @@
     NSMutableData *indicesNeededYCHOL;
     cholmod_dense *solvedX;
     cholmod_dense *solvedY;
+    int max;
 }
 
--(id) initWithGraph: (cholmod_sparse *)graphRep andImageSize: (NSSize) size;
+-(id) initWithGraph: (cholmod_sparse *)graphRep andImageSize: (NSSize) size usingMaxIterations: (int) maxIt;
 -(cholmod_dense *) getX;
 -(cholmod_dense *) getY;
 

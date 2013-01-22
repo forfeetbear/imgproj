@@ -13,6 +13,7 @@
 @interface CHOLMODUtil : NSObject
 
 +(void) insertIntoTriplet: (cholmod_triplet *) t WithRow: (int) r col: (int) c andValue: (double) x;
++(double) cholmodMagnitudeOf: (cholmod_dense *) a;
 +(double) cholmodDotProductOfX: (cholmod_dense *) x andY: (cholmod_dense *) y;
 +(cholmod_dense *) cholmodAddDenseA: (cholmod_dense *) a andB: (cholmod_dense *) b withScalesA: (double) A andB: (double) B;
 +(cv::Mat) convertXCHOLMODDense: (cholmod_dense *) d withWidth: (int) w andHeight: (int) h;
